@@ -1,4 +1,6 @@
-# 🔧 AI Multi-Agent Debate System - Technical Overview
+IMPORTANT THIS IS STILL WIP
+
+# [WIP] 🔧 AI Multi-Agent Debate System - Technical Overview
 
 ## **Core Architecture**
 
