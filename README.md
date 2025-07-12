@@ -2,6 +2,16 @@ IMPORTANT THIS IS STILL WIP
 
 # [WIP] 🔧 AI Multi-Agent Debate System - Technical Overview
 
+## **Flexible Debate Framework for Any Topic**
+
+This system isn't just about hiring decisions - it's a **general-purpose debate engine** that can tackle any complex evaluation or decision-making scenario. The resume evaluation is just one application. The same framework can be configured to debate research proposals, investment opportunities, policy decisions, medical diagnoses, product launches, or even creative projects like book manuscripts or marketing campaigns.
+
+The key insight is that any complex decision benefits from **multiple expert perspectives** examining it from different angles. Whether you're evaluating a startup pitch, analyzing a legal case, or deciding on a strategic business direction, having diverse experts with different priorities and concerns leads to more thorough, balanced decisions.
+
+**What makes this particularly powerful is persona flexibility.** The expert personalities don't have to be manually written - they can be **machine-generated** based on role descriptions. Want to evaluate a biotech investment? The system can automatically generate personas for a venture capitalist, regulatory expert, clinical researcher, market analyst, and IP attorney. Each gets appropriate expertise, personality traits, and evaluation criteria generated on the fly.
+
+This opens up fascinating possibilities for **systematic testing.** You could run the same resume through 50 different board compositions to see how team dynamics affect hiring decisions. Or test how changing just one persona (swapping a conservative risk-averse expert for an innovation-focused one) shifts the entire debate outcome. You might discover that certain personality combinations consistently produce better decisions, or that some types of candidates get unfairly penalized by particular expert configurations. It becomes a laboratory for understanding how group decision-making works and optimizing it for better outcomes.
+
 ## **Core Architecture**
 
 ### **1. Dynamic Role-Based Message Routing 🎭**
@@ -125,3 +135,5 @@ def parse_response_fields(message):
 ## **TLDR - The Simple Logic**
 
 Think of it like having five expert consultants in a conference room, but they're AI agents instead of real people. Each expert has their own specialty and personality - one focuses on technical skills, another on leadership, another on industry experience. When it's Dr. Chen's turn to speak, the system "becomes" her - it remembers everything she's said before and responds as her character would. Meanwhile, a meeting coordinator keeps track of time and makes sure everyone actually makes a decision instead of talking forever. The key insight is that each AI expert maintains their own perspective and memory throughout the entire discussion, just like real people would, but they can debate instantly without scheduling conflicts. The system automatically manages who speaks when, ensures decisions get made, and tracks all the votes and reasoning in a structured way that can be easily analyzed at the end.
+
+
