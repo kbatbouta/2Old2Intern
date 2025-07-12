@@ -3,52 +3,6 @@ Position: Principal AI Research Scientist
 Board Members: Dr. Sarah Chen, Prof. Michael Rodriguez, Dr. Emily Watson, Dr. James Kumar, Dr. Lisa Thompson, TimeKeeper
 ======================================================================
 
-🤔 Dr. Sarah Chen is formulating their assessment...
-
-❌ Error generating response: Anthropic API error: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}}
-Current speaker: dr. sarah chen
-Message count: 0
-Messages so far: 0
-
-======================================================================
-📋 FINAL BOARD VERDICTS
-======================================================================
-
-Dr. Sarah Chen (Senior Research Director):
-   Verdict: NO VERDICT
-   Reasoning: Not provided
-
-Prof. Michael Rodriguez (Department Head):
-   Verdict: NO VERDICT
-   Reasoning: Not provided
-
-Dr. Emily Watson (Industry Liaison):
-   Verdict: NO VERDICT
-   Reasoning: Not provided
-
-Dr. James Kumar (Ethics and Compliance Officer):
-   Verdict: NO VERDICT
-   Reasoning: Not provided
-
-Dr. Lisa Thompson (Innovation Coordinator):
-   Verdict: NO VERDICT
-   Reasoning: Not provided
-
-📊 VERDICT SUMMARY:
-
-🎯 BOARD RECOMMENDATION:
-   SPLIT DECISION (0 hire vs 0 no-hire)
-
-📈 DEBATE STATISTICS:
-   Total messages: 0
-   Active participants: 5
-   TimeKeeper interventions: 0
-(.venv) PS C:\Users\kbatb\Documents\Work\2Old2Intern\app> python main.py
-🏛️  RESEARCH BOARD DEBATE STARTING
-Position: Principal AI Research Scientist
-Board Members: Dr. Sarah Chen, Prof. Michael Rodriguez, Dr. Emily Watson, Dr. James Kumar, Dr. Lisa Thompson, TimeKeeper
-======================================================================
-
 🤔 Dr. Lisa Thompson is formulating their assessment...
 
 [1] DR. LISA THOMPSON (Innovation Coordinator) → board:
