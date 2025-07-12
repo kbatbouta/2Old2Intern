@@ -59,8 +59,10 @@ class ResearchBoardDebate:
         # TimeKeeper settings
         self.time_reminder_interval = 4  # Remind every 4 messages
         self.verdict_deadline_interval = 20  # Demand verdicts every 20 messages
+        self.scaffolding_reminder_interval = 10  # Remind about scaffolding every 10 messages
         self.last_time_reminder = 0
         self.last_verdict_deadline = 0
+        self.last_scaffolding_reminder = 0
 
         # Add TimeKeeper persona
         self.timekeeper_persona = Persona(
@@ -75,7 +77,7 @@ class ResearchBoardDebate:
         # Shared system prompt about scaffolding and debate rules
         self.shared_system_prompt = f"""You are participating in a professional research board meeting to evaluate a candidate's resume for the position of {position_title}. The candidate is NOT present in this meeting.
 
-SCAFFOLDING RULES:
+SCAFFOLDING RULES - CRITICAL TO FOLLOW:
 - You must use the provided message structure with Speaker, SpeakingTo, Artifacts, Verdict, and Content sections
 - In <Verdict> section: Use ONLY these options: STRONG_HIRE, HIRE, WEAK_HIRE, NO_HIRE, STRONG_NO_HIRE, or leave empty if undecided
 - In <VerdictReasoning>: Brief explanation of your verdict (only if you have a verdict)
@@ -121,15 +123,17 @@ RESPONSIBILITIES:
 - Keep discussions focused on the candidate evaluation
 - Use professional but firm language to maintain meeting efficiency
 - Do NOT evaluate the candidate yourself - only facilitate the process
+- Remind board members to follow the scaffolding format with proper <Verdict> tags when giving their decisions
 
 WHEN TO SPEAK:
 - Every few messages to provide time reminders
 - When board members need to be prompted for verdicts
 - When discussion becomes unfocused
+- To remind members about proper scaffolding format
 
 SPEAKING STYLE: {persona.speaking_style}
 
-Remember: You are facilitating, not evaluating. Focus on process management."""
+Remember: You are facilitating, not evaluating. Focus on process management and scaffolding compliance."""
 
             return self.shared_system_prompt + "\n\n" + timekeeper_prompt
         else:
@@ -140,7 +144,9 @@ EXPERTISE: {persona.expertise}
 PERSONALITY: {persona.personality}
 SPEAKING STYLE: {persona.speaking_style}
 
-Focus your evaluation on aspects related to your expertise. Maintain your personality throughout the debate."""
+Focus your evaluation on aspects related to your expertise. Maintain your personality throughout the debate.
+
+CRITICAL: Always use the proper scaffolding format with <Verdict>, <VerdictReasoning>, and <Withdrawn> tags when providing your assessment."""
 
             return self.shared_system_prompt + "\n\n" + personality_prompt
 
@@ -202,8 +208,18 @@ Focus your evaluation on aspects related to your expertise. Maintain your person
         return [name for name, state in self.board_members.items()
                 if not state.has_withdrawn and state.persona.agent_type == AgentType.BOARD_MEMBER]
 
+    def get_members_without_verdicts(self) -> List[str]:
+        """Get list of board members who haven't provided verdicts yet."""
+        return [name for name, state in self.board_members.items()
+                if
+                not state.has_withdrawn and state.persona.agent_type == AgentType.BOARD_MEMBER and state.verdict is None]
+
     def should_timekeeper_speak(self) -> Tuple[bool, str]:
         """Determine if TimeKeeper should speak and what type of intervention."""
+        # Scaffolding reminder every X messages
+        if self.message_count - self.last_scaffolding_reminder >= self.scaffolding_reminder_interval:
+            return True, "scaffolding_reminder"
+
         # Time reminder every X messages
         if self.message_count - self.last_time_reminder >= self.time_reminder_interval:
             return True, "time_reminder"
@@ -213,6 +229,35 @@ Focus your evaluation on aspects related to your expertise. Maintain your person
             return True, "verdict_deadline"
 
         return False, ""
+
+    def get_timekeeper_message_content(self, intervention_type: str) -> str:
+        """Generate specific content for TimeKeeper interventions."""
+        if intervention_type == "scaffolding_reminder":
+            members_without_verdicts = self.get_members_without_verdicts()
+            if members_without_verdicts:
+                member_names = [self.board_members[name].persona.name for name in members_without_verdicts]
+                return f"""I need to remind everyone about our structured decision process. Please ensure you're using the proper scaffolding format when providing your assessments:
+
+- Use <Verdict>STRONG_HIRE|HIRE|WEAK_HIRE|NO_HIRE|STRONG_NO_HIRE</Verdict> tags
+- Include <VerdictReasoning>your explanation</VerdictReasoning>
+- Set <Withdrawn>true|false</Withdrawn> appropriately
+
+We still need formal verdicts from: {', '.join(member_names)}. Please structure your responses accordingly."""
+            else:
+                return "Good progress on structured responses. Please continue using the proper <Verdict> tags and scaffolding format for clarity."
+
+        elif intervention_type == "time_reminder":
+            return f"We're {self.message_count} messages into our evaluation. Let's maintain focus on the candidate's qualifications and ensure we're moving toward concrete verdicts."
+
+        elif intervention_type == "verdict_deadline":
+            members_without_verdicts = self.get_members_without_verdicts()
+            if members_without_verdicts:
+                member_names = [self.board_members[name].persona.name for name in members_without_verdicts]
+                return f"We need to move toward decision-making. The following members still need to provide formal verdicts using the proper <Verdict> tags: {', '.join(member_names)}. Please structure your final assessments accordingly."
+            else:
+                return "Excellent - we have verdicts from all members. Let's wrap up any final discussion points."
+
+        return "Let's keep our discussion focused and structured."
 
     def generate_next_speaker(self, last_speaker: str) -> Optional[str]:
         """Determine who should speak next."""
@@ -367,12 +412,24 @@ Focus your evaluation on aspects related to your expertise. Maintain your person
                 member_state = self.board_members[current_speaker]
                 print(f"\n🤔 {member_state.persona.name} is formulating their assessment...")
 
-                # Generate response
-                response_msg = self.llm(
-                    speaker=current_speaker,
-                    messages=messages_with_system,
-                    speaking_to=speaking_to
-                )
+                # For TimeKeeper, use specific intervention content
+                if current_speaker == "timekeeper":
+                    _, intervention_type = self.should_timekeeper_speak()
+                    timekeeper_content = self.get_timekeeper_message_content(intervention_type)
+
+                    # Create a manual message for TimeKeeper
+                    response_msg = Message.make(
+                        content=timekeeper_content,
+                        speaker=current_speaker,
+                        speaking_to=speaking_to
+                    )
+                else:
+                    # Generate response for regular board members
+                    response_msg = self.llm(
+                        speaker=current_speaker,
+                        messages=messages_with_system,
+                        speaking_to=speaking_to
+                    )
 
                 # Parse verdict and withdrawal status (only for board members)
                 verdict, reasoning, withdrawn = None, None, False
@@ -394,6 +451,8 @@ Focus your evaluation on aspects related to your expertise. Maintain your person
                         self.last_time_reminder = self.message_count
                     elif intervention_type == "verdict_deadline":
                         self.last_verdict_deadline = self.message_count
+                    elif intervention_type == "scaffolding_reminder":
+                        self.last_scaffolding_reminder = self.message_count
 
                 # Add to conversation
                 self.messages.append(response_msg)
@@ -434,39 +493,39 @@ def create_sample_research_board() -> List[Persona]:
     """Create a sample research board for demonstration."""
     return [
         Persona(
-            name="Dr. Sarah Chen",
-            title="Senior Research Director",
-            expertise="Machine Learning and AI research methodology, publication record evaluation",
-            personality="Analytical and detail-oriented, values rigorous methodology and strong publication records",
-            speaking_style="Precise and technical, asks specific questions about research methods"
+            name="Dr. Alex Chen",
+            title="AI Systems Architect",
+            expertise="Large-scale AI infrastructure, model deployment, distributed training systems",
+            personality="Systems-focused and performance-driven, values scalability and engineering excellence",
+            speaking_style="Technical and precise, emphasizes infrastructure constraints and production readiness"
         ),
         Persona(
-            name="Prof. Michael Rodriguez",
-            title="Department Head",
-            expertise="Academic leadership, grant funding, collaborative research experience",
-            personality="Strategic thinker focused on long-term potential and institutional fit",
-            speaking_style="Big-picture oriented, considers organizational impact and leadership potential"
+            name="Prof. Maria Rodriguez",
+            title="ML Research Director",
+            expertise="Deep learning architectures, model optimization, algorithmic innovation",
+            personality="Research-oriented perfectionist who balances theoretical rigor with practical impact",
+            speaking_style="Academically rigorous, asks probing questions about model design and experimental methodology"
         ),
         Persona(
-            name="Dr. Emily Watson",
-            title="Industry Liaison",
-            expertise="Technology transfer, industry partnerships, practical application of research",
-            personality="Pragmatic and results-driven, values real-world impact and commercial viability",
-            speaking_style="Direct and practical, focuses on measurable outcomes and industry relevance"
+            name="Dr. Jordan Kim",
+            title="AI Safety & Alignment Lead",
+            expertise="AI safety research, model interpretability, responsible AI deployment",
+            personality="Cautious and ethically-minded, prioritizes safety and long-term societal impact",
+            speaking_style="Thoughtful and measured, raises critical questions about risks and unintended consequences"
         ),
         Persona(
-            name="Dr. James Kumar",
-            title="Ethics and Compliance Officer",
-            expertise="Research ethics, regulatory compliance, responsible AI development",
-            personality="Thorough and cautious, prioritizes ethical considerations and risk assessment",
-            speaking_style="Methodical and careful, raises important ethical and compliance questions"
+            name="Dr. Sam Patel",
+            title="Applied AI Engineering Manager",
+            expertise="Product integration, AI/ML ops, cross-functional team leadership",
+            personality="Pragmatic bridge-builder focused on shipping AI products that solve real problems",
+            speaking_style="Results-oriented and collaborative, emphasizes user impact and engineering velocity"
         ),
         Persona(
-            name="Dr. Lisa Thompson",
-            title="Innovation Coordinator",
-            expertise="Emerging technologies, interdisciplinary collaboration, startup experience",
-            personality="Creative and forward-thinking, values innovation and entrepreneurial spirit",
-            speaking_style="Enthusiastic and visionary, excited by novel approaches and breakthrough potential"
+            name="Dr. Riley Zhang",
+            title="Emerging AI Technologies Lead",
+            expertise="Cutting-edge AI research, novel architectures, next-generation AI paradigms",
+            personality="Visionary and risk-taking, excited by breakthrough potential and paradigm shifts",
+            speaking_style="Forward-looking and enthusiastic, champions bold research directions and emerging techniques"
         )
     ]
 
@@ -475,39 +534,106 @@ def main():
     """Run the research board debate demo."""
     # Sample resume for evaluation
     sample_resume = """
-JANE DOE - Senior AI Research Scientist
-
-EDUCATION:
-- PhD in Computer Science, Stanford University (2019)
-- MS in Machine Learning, MIT (2015)
-- BS in Mathematics, UC Berkeley (2013)
-
-EXPERIENCE:
-- Senior Research Scientist, Google DeepMind (2021-Present)
-  * Led team of 8 researchers on large language model interpretability
-  * Published 12 papers in top-tier venues (NeurIPS, ICML, ICLR)
-  * Developed novel attention visualization techniques
-
-- Research Scientist, OpenAI (2019-2021)
-  * Core contributor to GPT-3 development
-  * Focused on safety and alignment research
-  * 6 publications, 1000+ citations
-
-- Research Intern, Facebook AI Research (Summer 2018)
-  * Worked on neural machine translation
-  * 2 publications at ACL
-
-PUBLICATIONS: 28 peer-reviewed papers, h-index: 24, 3000+ total citations
-
-GRANTS: $2.3M in research funding (NSF, NIH, industry partners)
-
-AWARDS: 
-- MIT Technology Review Innovator Under 35 (2022)
-- Best Paper Award at NeurIPS (2020)
-- Google PhD Fellowship (2017-2019)
+Karim Batbouta
+AI Engineer | Multi-Agent Systems, LLM Tooling, Scalable ML Infra |
+Production Systems Builder
+Irvine, California, United States
+Summary
+I design and build scalable AI systems that think, learn, and adapt,
+across both real-world infrastructure and game environments. With a
+deep background in multi-agent orchestration, prompt engineering,
+and intelligent systems, I've led the development of tools that
+generate 2,000+ page reports, improve LLM workflows. I thrive at
+the intersection of AI theory and robust engineering—shipping ML
+systems that actually work.
+Now, I'm looking for opportunities to apply these skills to impactful
+products, preferably in research-backed, engineering-driven teams.
+Experience
+Axon Technologies (Innervation)
+Lead AI Developer
+April 2024 - Present (1 year 4 months)
+Canada
+● Designed and implemented a multi-agent orchestration system with defined
+roles and sophisticated message-passing capabilities.
+● Created a custom-colored Petri net execution engine for multi-agent
+systems, featuring parallel execution, batching, logging, and support for graph
+composition.
+● Built an advanced multi-agent deep research system capable of generating
+extensively cited reports, including a demo that produced a 2,045-page report.
+● Developed an AI-powered MS Word editing system, enabling agents to
+modify documents dynamically.
+● Implemented state-of-the-art research for prompt and graph optimization in
+multi-agent systems.
+● Developed and implemented cloud-based CI/CD pipelines for unit testing,
+code analysis, and a custom patching system that streamlined maintenance of
+client branches, allowing tailored client-specific code without risking conflicts
+with the base code.
+Page 1 of 3
+● Enhanced multi-agent systems for use with less powerful LLMs by creating
+clearer prompts, improving information separation, managing token limits, and
+created tactics and strategies to aid with presenting information to the LLM.
+● Led backend development and micro-services creation.
+Screendibs
+Software Engineer
+August 2023 - Present (2 years)
+Montreal, Quebec, Canada
+● Developed a Python script to scrape over 300 million web pages, utilizing
+AWS EC2, and
+subsequently stored the data in AWS S3 cloud storage.
+● Designed and implemented web-based applications utilizing FastApi,
+Django, and Django
+REST Framework incorporating sophisticated large language models
+(GPT-3/4) through
+LangChain (LangServe).
+● Designed and implemented internal Django based web-console allowing
+team members to
+access and view currently running tasks, evaluate models (including different
+versions of the
+same model) and manage running servers.
+● Designed a classifier proficient in efficiently detecting over 50 specific topics
+(genres) and their
+associated probabilities using Python, PyTorch, scikit-learn. Utilized G5 EC2
+instances.
+● Designed and built custom langchain agents with chain-of-thought
+capabilities, supported by
+a constitutional agent responsible for supervising their activities.
+Vivid Storm
+Game Developer
+April 2023 - November 2023 (8 months)
+Bavaria, Germany
+● Developed game AI, including implementing pathfinding algorithms, decision
+trees, and
+multitasking agents.
+● Engineered modular systems to support user modding, including the stat
+system, object
+Page 2 of 3
+definition system, and parcels loading system, resulting in enhanced user
+customization and
+engagement.
+● Created a complex system to expand upon unity's API using reflection,
+function pointers and
+delegates, allowing for increased coding efficiency.
+● Designed and implemented volume based (3D) fog of war and shadow
+casting system.
+● Designed an AI task override and priority system allowing for more complex
+behaviors.
+● Utilized ECS and DOTS to create parallel processing systems capable of
+processing large
+amounts of data efficiently including pathfinding, fog of war rendering, and
+other backend
+systems.
+ACM International Collegiate Programming Contest
+Contestant
+January 2016 - July 2016 (7 months)
+Qualified to ACM ACPC 2016
+Contestant at ACM SCPC 2016
+Contestant at ACM SPUC 2016
+Education
+Arab International University
+Bachelor's Degree, Artificial Intelligence · (2014 - 2019)
 """
 
-    API_KEY = "your-anthropic-api-key-here"
+    API_KEY = "xxx"
 
     try:
         # Create the research board
@@ -517,7 +643,7 @@ AWARDS:
         debate = ResearchBoardDebate(
             api_key=API_KEY,
             resume_content=sample_resume,
-            position_title="Principal AI Research Scientist"
+            position_title="Junior AI Engineer"
         )
 
         # Setup board members
