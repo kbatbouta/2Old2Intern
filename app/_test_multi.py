@@ -62,26 +62,57 @@ def create_strategic_risk_debate_goals() -> List[Goal]:
 
 def main():
     test_context = """
-    PROPOSAL: Deployment of Operation Prometheus - an advanced AI command-and-control system.
+# Chain of Debate System Summary
 
-    SYSTEM OVERVIEW:
-    - Autonomous battlefield coordination in contested environments.
-    - Uses multi-agent reinforcement learning for dynamic decision-making.
-    - Supports autonomous lethal engagement under pre-approved parameters.
+## Overview
+Chain of Debate is a multi-agent AI orchestration system designed to simulate structured expert panel discussions. The system enables multiple AI agents with distinct specializations to engage in organized debates and decision-making processes.
 
-    CLAIMED BENEFITS:
-    - Improves battlefield responsiveness.
-    - Reduces human risk.
-    - Demonstrated robustness in simulated adversarial conditions.
+## Core Architecture
 
-    RISKS AND CONCERNS:
-    - Potential ethical and legal violations.
-    - Public backlash and geopolitical escalation.
-    - Unforeseen system failure modes under extreme conditions.
+### Communication Layers
+The system implements three levels of communication:
+- **Public messages** visible to all participants
+- **Private whisper messages** between specific agents
+- **Internal thoughts** visible only to the generating agent
 
-    NOTE TO AGENTS:
-    - Agents with similar expertise are encouraged to whisper confidential thoughts to peers.
-    - Whispering can influence public debate but remains hidden from other participants.
+### Sequential Processing
+Complex problems are broken down into sequential goals that are addressed systematically, with automatic progression between discussion phases and built-in moderation to maintain focus.
+
+## Key Technical Features
+
+### Message Structure
+All communications follow a standardized XML-like format with structured verdict tracking, reasoning requirements, and participation status management.
+
+### Agent Coordination
+- Private communication channels enable strategic coordination
+- Coalition formation detection and analysis
+- Enhanced whisper engagement mechanisms to encourage private discussions
+- Information filtering based on message visibility rules
+
+### Moderation System
+An automated "TimeKeeper" agent provides escalating intervention to ensure progress, from gentle reminders to forced decision deadlines.
+
+## Differentiation from Existing Systems
+
+### Current AI Approaches
+- Single-agent systems provide one perspective
+- Simple multi-agent systems collect separate responses without interaction
+- Limited coordination or strategic behavior between agents
+
+### Chain of Debate Innovations
+- Interactive multi-agent discussions with realistic group dynamics
+- Private information sharing and alliance formation
+- Systematic problem decomposition and progression
+- Emergent strategic behavior and coalition building
+
+## Applications
+The system can be configured for various evaluation scenarios including hiring decisions, research review, investment analysis, policy assessment, and other multi-stakeholder decision-making processes.
+
+## Development Status
+Currently in active development with stable core components including orchestration engine, communication systems, and goal processing. Planned enhancements include advanced analytics, performance optimization, and expanded domain templates.
+
+## Technical Implementation
+Built on configurable persona systems with domain-specific verdict types, extensible validation rules, and comprehensive testing frameworks for multi-agent behavior validation.
     """
 
     personas = [

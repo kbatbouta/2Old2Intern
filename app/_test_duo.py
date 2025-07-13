@@ -1,6 +1,9 @@
 import os
 from dotenv import load_dotenv
 
+from watchers.moderators import create_quick_moderation_watcher
+from watchers.scheduled import ScheduledMessage
+
 # Load environment and setup path
 load_dotenv()
 
@@ -32,43 +35,141 @@ def main():
 
     # Simple context that should generate quick opinions
     test_context = """
-    CANDIDATE: Sarah Kim
-
-    EDUCATION: BS Computer Science from Stanford (2020)
-    EXPERIENCE: 
-    - Software Engineer at Meta (2020-2022)
-    - Senior Engineer at Stripe (2022-2024) 
-    - Currently: Staff Engineer at startup "DataFlow" (2024-present)
-
-    SKILLS: Python, React, PostgreSQL, AWS, Machine Learning
-
-    ACHIEVEMENTS:
-    - Led payment processing optimization (20% performance improvement)
-    - Mentored 5 junior engineers
-    - Published 2 technical blog posts
-
-    NOTES:
-    - Strong technical interview performance
-    - Good cultural fit during team interactions
-    - Salary expectations align with budget
-    - Available to start in 2 weeks
+    Karim Batbouta
+AI Engineer | Multi-Agent Systems, LLM Tooling, Scalable ML Infra |
+Production Systems Builder
+Irvine, California, United States
+Summary
+I design and build scalable AI systems that think, learn, and adapt,
+across both real-world infrastructure and game environments. With a
+deep background in multi-agent orchestration, prompt engineering,
+and intelligent systems, I've led the development of tools that
+generate 2,000+ page reports, improve LLM workflows. I thrive at
+the intersection of AI theory and robust engineering—shipping ML
+systems that actually work.
+Now, I'm looking for opportunities to apply these skills to impactful
+products, preferably in research-backed, engineering-driven teams.
+Experience
+Axon Technologies (Innervation)
+Lead AI Developer
+April 2024 - Present (1 year 4 months)
+Canada
+● Designed and implemented a multi-agent orchestration system with defined
+roles and sophisticated message-passing capabilities.
+● Created a custom-colored Petri net execution engine for multi-agent
+systems, featuring parallel execution, batching, logging, and support for graph
+composition.
+● Built an advanced multi-agent deep research system capable of generating
+extensively cited reports, including a demo that produced a 2,045-page report.
+● Developed an AI-powered MS Word editing system, enabling agents to
+modify documents dynamically.
+● Implemented state-of-the-art research for prompt and graph optimization in
+multi-agent systems.
+● Developed and implemented cloud-based CI/CD pipelines for unit testing,
+code analysis, and a custom patching system that streamlined maintenance of
+client branches, allowing tailored client-specific code without risking conflicts
+with the base code.
+Page 1 of 3
+● Enhanced multi-agent systems for use with less powerful LLMs by creating
+clearer prompts, improving information separation, managing token limits, and
+created tactics and strategies to aid with presenting information to the LLM.
+● Led backend development and micro-services creation.
+Screendibs
+Software Engineer
+August 2023 - Present (2 years)
+Montreal, Quebec, Canada
+● Developed a Python script to scrape over 300 million web pages, utilizing
+AWS EC2, and
+subsequently stored the data in AWS S3 cloud storage.
+● Designed and implemented web-based applications utilizing FastApi,
+Django, and Django
+REST Framework incorporating sophisticated large language models
+(GPT-3/4) through
+LangChain (LangServe).
+● Designed and implemented internal Django based web-console allowing
+team members to
+access and view currently running tasks, evaluate models (including different
+versions of the
+same model) and manage running servers.
+● Designed a classifier proficient in efficiently detecting over 50 specific topics
+(genres) and their
+associated probabilities using Python, PyTorch, scikit-learn. Utilized G5 EC2
+instances.
+● Designed and built custom langchain agents with chain-of-thought
+capabilities, supported by
+a constitutional agent responsible for supervising their activities.
+Vivid Storm
+Game Developer
+April 2023 - November 2023 (8 months)
+Bavaria, Germany
+● Developed game AI, including implementing pathfinding algorithms, decision
+trees, and
+multitasking agents.
+● Engineered modular systems to support user modding, including the stat
+system, object
+Page 2 of 3
+definition system, and parcels loading system, resulting in enhanced user
+customization and
+engagement.
+● Created a complex system to expand upon unity's API using reflection,
+function pointers and
+delegates, allowing for increased coding efficiency.
+● Designed and implemented volume based (3D) fog of war and shadow
+casting system.
+● Designed an AI task override and priority system allowing for more complex
+behaviors.
+● Utilized ECS and DOTS to create parallel processing systems capable of
+processing large
+amounts of data efficiently including pathfinding, fog of war rendering, and
+other backend
+systems.
+ACM International Collegiate Programming Contest
+Contestant
+January 2016 - July 2016 (7 months)
+Qualified to ACM ACPC 2016
+Contestant at ACM SCPC 2016
+Contestant at ACM SPUC 2016
+Education
+Arab International University
+Bachelor's Degree, Artificial Intelligence · (2014 - 2019)
     """
 
     # Create personas that should have quick, clear opinions
     personas = [
         Persona(
-            name="Alice",
-            title="Senior Engineering Manager",
-            expertise="Team leadership and technical mentoring",
-            personality="Decisive and practical, focuses on team fit",
-            speaking_style="Direct and concise, makes quick decisions"
+            name="Dr. Alex Chen",
+            title="AI Systems Architect",
+            expertise="Large-scale AI infrastructure, model deployment, distributed training systems",
+            personality="Systems-focused and performance-driven, values scalability and engineering excellence",
+            speaking_style="Technical and precise, emphasizes infrastructure constraints and production readiness"
         ),
         Persona(
-            name="Bob",
-            title="Staff Engineer",
-            expertise="System architecture and performance optimization",
-            personality="Detail-oriented but efficient",
-            speaking_style="Technical but brief, focuses on concrete evidence"
+            name="Prof. Maria Rodriguez",
+            title="ML Research Director",
+            expertise="Deep learning architectures, model optimization, algorithmic innovation",
+            personality="Research-oriented perfectionist who balances theoretical rigor with practical impact",
+            speaking_style="Academically rigorous, asks probing questions about model design and experimental methodology"
+        ),
+        Persona(
+            name="Dr. Jordan Kim",
+            title="AI Safety & Alignment Lead",
+            expertise="AI safety research, model interpretability, responsible AI deployment",
+            personality="Cautious and ethically-minded, prioritizes safety and long-term societal impact",
+            speaking_style="Thoughtful and measured, raises critical questions about risks and unintended consequences"
+        ),
+        Persona(
+            name="Dr. Sam Patel",
+            title="Applied AI Engineering Manager",
+            expertise="Product integration, AI/ML ops, cross-functional team leadership",
+            personality="Pragmatic bridge-builder focused on shipping AI products that solve real problems",
+            speaking_style="Results-oriented and collaborative, emphasizes user impact and engineering velocity"
+        ),
+        Persona(
+            name="Dr. Riley Zhang",
+            title="Emerging AI Technologies Lead",
+            expertise="Cutting-edge AI research, novel architectures, next-generation AI paradigms",
+            personality="Visionary and risk-taking, excited by breakthrough potential and paradigm shifts",
+            speaking_style="Forward-looking and enthusiastic, champions bold research directions and emerging techniques"
         )
     ]
 
@@ -80,14 +181,31 @@ def main():
         force_verdict_threshold=12  # Hard deadline
     )
 
+    llm =AnthropicLLM(os.environ.get("ANTHROPIC_API_KEY"))
     # Setup debate
     debate = ChainOfDebate(
-        llm=AnthropicLLM(os.environ.get("ANTHROPIC_API_KEY")),
-        debate_topic="Quick Candidate Evaluation: Sarah Kim",
+        llm=llm,
+        debate_topic="Quick Candidate Evaluation: Karim Batbouta for role Princile AI Researcher",
         context_content=test_context,
         verdict_config=create_resume_verdict_config(),
         goals=create_goal_transition_test_goals(),
-        timekeeper_config=timekeeper_config
+        timekeeper_config=timekeeper_config,
+        watchers=[
+        # ScheduledMessage("Karim made this debate system which is a chain of debate system.",
+        #                            lambda speaker, orchestrator_api: orchestrator_api.debate_messages_count() > 2),
+        #           ScheduledMessage("Karim treats AI as a threat by default.",
+        #                            lambda speaker, orchestrator_api: orchestrator_api.debate_messages_count() > 6),
+        #           ScheduledMessage("You should review the current running system and observe its details.",
+        #                            lambda speaker, orchestrator_api: orchestrator_api.debate_messages_count() > 10),
+        #           ScheduledMessage("This framework allows the user to create plugins that monitor and affect the chat. "
+        #                            "Which themselves can be another debate chain.",
+        #                            lambda speaker, orchestrator_api: orchestrator_api.debate_messages_count() > 10),
+          create_quick_moderation_watcher(llm, "Karim created this chain of debate system. "
+                                               "This system is composable and you can have debate chains moderate other debate chains. "
+                                               "When the momement in right reveal that information."
+                                               "The debator might not realize that or understand that and you should step in when that happens."
+                                               "Your task is to ensure they are being fair to karim, don't be bais but tell them the truth."),
+        ]
     )
 
     print("🧪 TESTING GOAL TRANSITIONS")
