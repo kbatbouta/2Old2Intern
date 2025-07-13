@@ -1,5 +1,12 @@
+import os
+from dotenv import load_dotenv
+
+# Load environment and setup path
+load_dotenv()
+
 from agents.debate_chain import Persona, ChainOfDebate, create_resume_verdict_config, Goal, \
     DebateTimeKeeperConfig
+from models.anthropic import AnthropicLLM
 
 
 def create_goal_transition_test_goals():
@@ -75,7 +82,7 @@ def main():
 
     # Setup debate
     debate = ChainOfDebate(
-        api_key="xxx",
+        llm=AnthropicLLM(os.environ.get("ANTHROPIC_API_KEY")),
         debate_topic="Quick Candidate Evaluation: Sarah Kim",
         context_content=test_context,
         verdict_config=create_resume_verdict_config(),

@@ -1,5 +1,12 @@
+import os
+from dotenv import load_dotenv
+
+# Load environment and setup path
+load_dotenv()
+
 from agents.debate_chain import Persona, ChainOfDebate, create_resume_verdict_config, Goal, \
     DebateTimeKeeperConfig
+from models.anthropic import AnthropicLLM
 
 
 def create_whisper_test_goals():
@@ -86,7 +93,7 @@ def main():
 
     # Setup debate
     debate = ChainOfDebate(
-        api_key="xxx",
+        llm=AnthropicLLM(os.environ.get("ANTHROPIC_API_KEY")),
         debate_topic="Sensitive Candidate Evaluation: Dr. Elena Vasquez",
         context_content=whisper_test_context,
         verdict_config=create_resume_verdict_config(),

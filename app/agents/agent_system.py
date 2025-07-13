@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from abc import ABC, abstractmethod
 from models.anthropic import AnthropicLLM
-from models.base import Message
+from models.base import Message, BaseModel
 
 
 class AgentType(Enum):
@@ -83,13 +83,13 @@ class AgentOrchestrator:
     """
 
     def __init__(self,
-                 api_key: str,
+                 llm: BaseModel,
                  conversation_topic: str,
                  context_content: str,
                  coordinator_config: CoordinatorConfig = None,
                  validity_checkers: List[ValidityChecker] = None,
                  goals: List[Goal] = None):
-        self.llm = AnthropicLLM(api_key=api_key, temperature=0.8)
+        self.llm = llm
         self.messages: List[Message] = []
         self.conversation_topic = conversation_topic
         self.context_content = context_content

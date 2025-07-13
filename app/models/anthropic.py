@@ -1,5 +1,6 @@
 import anthropic
 import uuid
+import os
 import datetime
 from typing import List, Optional
 from .base import BaseModel, Message  # Assuming your base classes are in a separate module
@@ -24,6 +25,8 @@ class AnthropicLLM(BaseModel):
             max_tokens: Maximum tokens to generate
             temperature: Sampling temperature (0.0 to 1.0)
         """
+        if api_key is None:
+            api_key = os.environ.get("ANTHROPIC_API_KEY")
         self.client = anthropic.Anthropic(api_key=api_key)
         self.model = model
         self.max_tokens = max_tokens

@@ -5,6 +5,7 @@ from agents.agent_system import (
     AgentOrchestrator, ValidityChecker, RejectionResult,
     Persona, Goal, AgentType, CoordinatorConfig
 )
+from models.base import BaseModel
 
 
 @dataclass
@@ -148,7 +149,7 @@ class ChainOfDebate(AgentOrchestrator):
     """
 
     def __init__(self,
-                 api_key: str,
+                 llm: BaseModel,
                  debate_topic: str,
                  context_content: str,
                  verdict_config: VerdictConfig,
@@ -176,7 +177,7 @@ class ChainOfDebate(AgentOrchestrator):
         self.completed_goals = []
 
         super().__init__(
-            api_key=api_key,
+            llm=llm,
             conversation_topic=debate_topic,
             context_content=context_content,
             coordinator_config=self.timekeeper_config,
