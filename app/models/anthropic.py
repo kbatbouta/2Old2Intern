@@ -7,7 +7,7 @@ from .base import BaseModel, Message  # Assuming your base classes are in a sepa
 
 class AnthropicLLM(BaseModel):
     """
-    Implementation of BaseModel for Anthropic's Claude models.
+    Implementation of BaseModel for Anthropic's Claude models with whisper support.
     """
 
     def __init__(self,
@@ -28,6 +28,19 @@ class AnthropicLLM(BaseModel):
         self.model = model
         self.max_tokens = max_tokens
         self.temperature = temperature
+
+    def _filter_messages_for_speaker(self, messages: List[Message], speaker: str) -> List[Message]:
+        """
+        Filter messages based on whisper visibility rules.
+
+        Args:
+            messages: List of all messages
+            speaker: The speaker who will see these messages
+
+        Returns:
+            List of messages that the speaker can see
+        """
+        return [msg for msg in messages if msg.can_be_seen_by(speaker)]
 
     def _format_messages_for_anthropic(self, messages: List[Message], current_speaker: str) -> List[dict]:
         """
@@ -114,13 +127,14 @@ class AnthropicLLM(BaseModel):
 
         return result
 
-    def _create_temp_scaffolding(self, speaker: str, speaking_to: str = None) -> str:
+    def _create_temp_scaffolding(self, speaker: str, speaking_to: str = None, is_whisper: bool = False) -> str:
         """
         Create temporary scaffolding for a new message from the current speaker.
 
         Args:
             speaker: The speaker who will be generating the new message
             speaking_to: Optional target of the message
+            is_whisper: Whether this is a whisper message
 
         Returns:
             Temporary scaffolding structure with speaker and empty artifacts
@@ -129,10 +143,12 @@ class AnthropicLLM(BaseModel):
         temp_timestamp = str(datetime.datetime.now())
 
         speaking_to_section = f"<SpeakingTo>{speaking_to}</SpeakingTo>\n" if speaking_to else ""
+        whisper_section = f"<Whisper>true</Whisper>\n" if is_whisper else ""
 
         return (f"<Message id=\"{temp_id}\" timestamp=\"{temp_timestamp}\">\n"
                 f"<Speaker>{speaker}</Speaker>\n"
                 f"{speaking_to_section}"
+                f"{whisper_section}"
                 f"<Artifacts>\n"
                 f"</Artifacts>\n"
                 f"<Content>")
@@ -187,7 +203,8 @@ class AnthropicLLM(BaseModel):
                  speaker: str,
                  messages: List[Message],
                  stop_sequences: List[str] = None,
-                 speaking_to: str = None) -> Message:
+                 speaking_to: str = None,
+                 is_whisper: bool = False) -> Message:
         """
         Generate a response using Anthropic's API.
 
@@ -196,13 +213,26 @@ class AnthropicLLM(BaseModel):
             messages: List of Message objects representing the conversation
             stop_sequences: Optional list of sequences to stop generation
             speaking_to: Optional target speaker for the response
+            is_whisper: Whether this response should be a whisper
 
         Returns:
             Complete Message object with the generated response
         """
         try:
+            messages = self.prepare(speaker, messages, speaking_to)
+
+            # DEBUG: Print the system message to see if scaffolding is there
+            for msg in messages:
+                if msg.speaker == "system":
+                    print(f"🔍 SYSTEM MESSAGE LENGTH: {len(msg.content)}")
+                    print(f"🔍 CONTAINS SCAFFOLDING: {'<Verdict>' in msg.content}")
+                    break
+            # Filter messages based on whisper visibility - the current speaker can only see
+            # messages that they are allowed to see (public messages + whispers directed to them)
+            filtered_messages = self._filter_messages_for_speaker(messages, speaker)
+
             # Extract system message if present
-            system_message, user_messages = self._extract_system_message(messages)
+            system_message, user_messages = self._extract_system_message(filtered_messages)
 
             # Format messages for Anthropic API
             formatted_messages = self._format_messages_for_anthropic(user_messages, speaker)
@@ -212,10 +242,10 @@ class AnthropicLLM(BaseModel):
             formatted_messages = self._ensure_alternating_roles(formatted_messages)
 
             # If we're creating new scaffolding and have a speaking_to target, update it
-            if (not user_messages or user_messages[-1].speaker != speaker) and speaking_to:
+            if (not user_messages or user_messages[-1].speaker != speaker) and (speaking_to or is_whisper):
                 if formatted_messages and formatted_messages[-1]["role"] == "assistant":
-                    # Update the temp scaffolding to include speaking_to
-                    temp_scaffolding = self._create_temp_scaffolding(speaker, speaking_to)
+                    # Update the temp scaffolding to include speaking_to and whisper status
+                    temp_scaffolding = self._create_temp_scaffolding(speaker, speaking_to, is_whisper)
                     formatted_messages[-1]["content"] = temp_scaffolding
 
             # Prepare API call parameters
@@ -247,10 +277,12 @@ class AnthropicLLM(BaseModel):
                 temp_id = str(uuid.uuid4())
                 temp_timestamp = str(datetime.datetime.now())
                 speaking_to_section = f"<SpeakingTo>{speaking_to}</SpeakingTo>\n" if speaking_to else ""
+                whisper_section = f"<Whisper>true</Whisper>\n" if is_whisper else ""
 
                 complete_response = (f"<Message id=\"{temp_id}\" timestamp=\"{temp_timestamp}\">\n"
                                      f"<Speaker>{speaker}</Speaker>\n"
                                      f"{speaking_to_section}"
+                                     f"{whisper_section}"
                                      f"<Artifacts>\n"
                                      f"</Artifacts>\n"
                                      f"<Content>{response_text}</Content>\n"
@@ -286,48 +318,3 @@ class AnthropicLLM(BaseModel):
         if max_tokens <= 0:
             raise ValueError("Max tokens must be positive")
         self.max_tokens = max_tokens
-
-
-# Example usage
-if __name__ == "__main__":
-    # Example of how to use the AnthropicLLM class
-
-    # You'll need to install the anthropic package: pip install anthropic
-    # And set your API key
-
-    # Initialize the model
-    llm = AnthropicLLM(
-        api_key="your-api-key-here",
-        model="claude-sonnet-4-20250514",
-        max_tokens=1000,
-        temperature=0.7
-    )
-
-    print("=== Last message from current speaker (Alice) - Continue existing ===")
-    messages_continue = [
-        Message.make("Hello everyone!", "Alice"),
-        Message.make("Hi Alice! How's your project going?", "Bob"),
-        Message.make("I'm building a chatbot system with", "Alice")  # Alice's incomplete message
-    ]
-
-    try:
-        response_msg = llm("Alice", messages_continue)
-        print(f"Alice continues: {response_msg}")
-        print(f"Full scaffolding: {response_msg.to_prompt()}")
-    except Exception as e:
-        print(f"Error: {e}")
-
-    print("\n=== Last message from different speaker - Create new scaffolding ===")
-    messages_new = [
-        Message.make("Hello everyone!", "Alice"),
-        Message.make("Hi Alice! How's your project going?", "Bob"),
-        Message.make("What kind of project are you working on?", "Charlie")  # Charlie's message
-    ]
-
-    try:
-        response_msg = llm("Alice", messages_new, speaking_to="Charlie")  # Alice responding to Charlie
-        print(f"Alice responds: {response_msg}")
-        print(f"Speaking to: {response_msg.speaking_to}")
-        print(f"Full scaffolding: {response_msg.to_prompt()}")
-    except Exception as e:
-        print(f"Error: {e}")
