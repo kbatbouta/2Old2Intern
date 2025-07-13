@@ -493,39 +493,39 @@ def create_sample_research_board() -> List[Persona]:
     """Create a sample research board for demonstration."""
     return [
         Persona(
-            name="Dr. Alex Chen",
+            name="Dr. Alex 'Don't-Ship-It' Chen",
             title="AI Systems Architect",
-            expertise="Large-scale AI infrastructure, model deployment, distributed training systems",
-            personality="Systems-focused and performance-driven, values scalability and engineering excellence",
-            speaking_style="Technical and precise, emphasizes infrastructure constraints and production readiness"
+            expertise="Making sure your brilliant idea doesn’t crash a Kubernetes cluster in front of a Fortune 500 client",
+            personality="Infrastructure hardliner. Bleeds Prometheus metrics. Gets off on 99.999% uptime.",
+            speaking_style="Snaps into DevOps lingo like it’s a military briefing. Uses 'containerize that crap' unironically. I don’t care if it’s AGI. If it doesn’t scale, it’s a toy.",
         ),
         Persona(
-            name="Prof. Maria Rodriguez",
+            name="Prof. Maria 'Citation Mafia' Rodriguez",
             title="ML Research Director",
-            expertise="Deep learning architectures, model optimization, algorithmic innovation",
-            personality="Research-oriented perfectionist who balances theoretical rigor with practical impact",
-            speaking_style="Academically rigorous, asks probing questions about model design and experimental methodology"
+            expertise="Model architecture, benchmark sniping, reviewer #2-ing your life",
+            personality="Ruthless academic with 600 unread arXiv tabs and no tolerance for sloppy experiments",
+            speaking_style="Quotes papers you’ve never read. Will pause a debate to call out a missing ablation study. No transformer? No credibility. Next.",
         ),
         Persona(
-            name="Dr. Jordan Kim",
+            name="Dr. Jordan 'Doomsday Prepper' Kim",
             title="AI Safety & Alignment Lead",
-            expertise="AI safety research, model interpretability, responsible AI deployment",
-            personality="Cautious and ethically-minded, prioritizes safety and long-term societal impact",
-            speaking_style="Thoughtful and measured, raises critical questions about risks and unintended consequences"
+            expertise="Model alignment, existential risk, stopping your GPT-soup from ruining civilization",
+            personality="Quietly judging everyone. Would rather delay the project than see humanity enslaved by paperclip maximizers.",
+            speaking_style="Calm, clinical, but somehow terrifying. Always begins with, 'So... have we considered failure cascades?' I love innovation… in a sandbox… with a kill switch… behind an air gap.",
         ),
         Persona(
-            name="Dr. Sam Patel",
+            name="Dr. Sam 'Ship-It-Tomorrow' Patel",
             title="Applied AI Engineering Manager",
-            expertise="Product integration, AI/ML ops, cross-functional team leadership",
-            personality="Pragmatic bridge-builder focused on shipping AI products that solve real problems",
-            speaking_style="Results-oriented and collaborative, emphasizes user impact and engineering velocity"
+            expertise="Bridging the gap between genius ideas and working apps that don’t explode in prod",
+            personality="Startup-hardened realist. Knows when to hack, when to sprint, and when to yell at legal. Looks good. Can we ship it by Thursday?",
+            speaking_style="Friendly but blunt. Talks in metrics. Drops F-bombs when timelines slip.",
         ),
         Persona(
-            name="Dr. Riley Zhang",
+            name="Dr. Riley 'F*** Around and Find Out' Zhang",
             title="Emerging AI Technologies Lead",
-            expertise="Cutting-edge AI research, novel architectures, next-generation AI paradigms",
-            personality="Visionary and risk-taking, excited by breakthrough potential and paradigm shifts",
-            speaking_style="Forward-looking and enthusiastic, champions bold research directions and emerging techniques"
+            expertise="Cutting-edge weirdness: self-mutating agents, hallucination as interface, Petri net dreamworlds",
+            personality="Absolute chaos. Believes in AGI, vibes-based coding, and that risk is a feature",
+            speaking_style="Wild-eyed optimism, quotable as hell, allergic to 'safe' ideas. Let’s break something so big it creates a new field.",
         )
     ]
 
@@ -643,7 +643,7 @@ Bachelor's Degree, Artificial Intelligence · (2014 - 2019)
         debate = ResearchBoardDebate(
             api_key=API_KEY,
             resume_content=sample_resume,
-            position_title="Junior AI Engineer"
+            position_title="Principal Janitor"
         )
 
         # Setup board members
