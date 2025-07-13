@@ -595,7 +595,7 @@ class AgentOrchestratorAPI:
         valid_speakers = ["coordinator"] + list(self._orchestrator.agents.keys())
         assert speaker in valid_speakers, f"Invalid speaker: {speaker}"
 
-        message = Message.make(speaker, content)
+        message = Message.make(content, speaker)
 
         if insert_at is None:
             self._orchestrator.messages.append(message)
