@@ -11,12 +11,14 @@ This isn't just another chatbot system - it's a composable **flexible debate eng
 3. **🔄 Engage in sticky back-and-forth private chats** that shape the outcome - Persistent whisper threads allow for complex multi-turn negotiations that influence public debate
 4. **🏛️ Debate publicly in structured phases** — just like real committees, with formal position-taking and reasoned discourse
 5. **🔗 Create recursive meta-debates** - Debates can moderate other debates with infinite oversight depth for self-governing AI democracy
+6. **🔮 Behavioral prediction modeling** - Agents continuously assess and predict other participants' motivations, strategic moves, and likely reactions based on evolving group dynamics
 
 ### Progressive Goal Management System
 1. **🎯 Dynamic phase transitions** triggered by participant withdrawal patterns rather than arbitrary timelines
 2. **📈 Natural completion detection** - when enough agents withdraw from a goal, the system recognizes deliberation has reached diminishing returns
 3. **🔄 Adaptive progression** through structured phases (e.g., economic analysis → political feasibility → final recommendations)
 4. **⚡ Prevents endless circular debate** by using organic stopping points based on participant behavior
+5. **🎲 Dynamic information injection** - Wildcard system allows scheduled event reveals and information updates that test group adaptation to changing circumstances
 
 ### Timekeeper Anti-Drift Architecture
 1. **📋 Structural enforcement** of verdict scaffolding to ensure comparable, analyzable outputs
@@ -24,6 +26,7 @@ This isn't just another chatbot system - it's a composable **flexible debate eng
 3. **⚠️ Drift prevention** through constant orientation reminders and goal clarity
 4. **🔴 Escalating alerts** when discussions veer off-track or participants fail to engage with current objectives
 5. **📊 Real-time coordination** ensuring all voices are heard before phase transitions
+6. **🎯 Efficient decision forcing** - System achieved 5 comprehensive verdicts across 5 goals in just 100 messages with 6 agents, demonstrating remarkable deliberative efficiency
 
 ### System Intelligence Features
 1. **🤝 Coalition detection** that automatically identifies and tracks alliance formation
@@ -31,6 +34,7 @@ This isn't just another chatbot system - it's a composable **flexible debate eng
 3. **⚖️ Balanced participation** management preventing any single voice from dominating
 4. **🎭 Consistent character maintenance** across extended multi-phase deliberations
 5. **🔧 Tick-based plugin composability** - Modular watcher system enables unlimited extensibility and custom intervention strategies
+6. **🧵 Relationship persistence** - DNA stickness system maintains private communication threads and relationship continuity across debate phases
 
 ### Recursive Meta-Governance Architecture
 1. **🏛️ Democratic AI oversight** - AI systems democratically govern other AI systems through structured debate with majority voting requirements
@@ -39,6 +43,7 @@ This isn't just another chatbot system - it's a composable **flexible debate eng
 4. **🧠 Emergent quality assurance** - Meta-debates catch subtle issues that neither humans nor single AIs would detect through collaborative evaluation
 5. **∞ Infinite recursion capability** - Debates watching debates watching debates with no theoretical limit and fail-safe majority consensus requirements
 6. **⚖️ Majority consensus enforcement** - Interventions only occur when meta-debate participants reach democratic agreement, with automatic fallback to non-interference
+7. **⚡ Real-time self-governance** - System automatically spawns meta-moderation debates when quality issues are detected, with democratic voting determining interventions without human oversight
 
 ## 🧠 Advanced Cognitive Features
 
@@ -86,6 +91,20 @@ coordinate with the security expert privately first to build a stronger case.
 - **Strategic Planning**: Agents use thoughts to plan their approach and assess situations
 - **Realistic Cognition**: Simulates the internal deliberation that precedes external communication
 - **Coalition Strategy**: Agents think through alliance-building and information sharing tactics
+- 
+### Continuous Cognitive Intelligence
+
+**Behavioral Prediction Modeling:**
+Agents maintain ongoing psychological assessments of other participants, continuously updating their mental models based on observed behavior. This creates realistic social intelligence where agents evaluate motivations, detect strategic moves, and predict likely reactions in real-time.
+
+**Evolving Social Awareness:**
+As debates progress, agents revise their opinions of colleagues based on performance - recognizing when someone exceeds expectations, identifying emerging coalition patterns, or detecting shifts in strategic positioning. This dynamic assessment mirrors how real experts adjust their perceptions during extended deliberations.
+
+**Strategic Anticipation:**
+The prediction system enables agents to forecast how participants might respond to pressure, what would make them change positions, and who they're most likely to align with. This forward-looking intelligence informs tactical decisions about when to build alliances, how to frame arguments, and whether to coordinate responses with potential allies.
+
+**Authentic Group Psychology:**
+Rather than static character interactions, agents demonstrate realistic psychological depth - showing surprise when colleagues defy expectations, adjusting strategies based on emerging dynamics, and maintaining private assessments that evolve throughout the deliberation process. This creates genuine group psychology where relationships and perceptions shift organically.
 
 ### Enhanced Whisper Response System
 
