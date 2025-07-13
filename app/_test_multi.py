@@ -37,18 +37,18 @@ def create_strategic_risk_debate_goals() -> List[Goal]:
             name="technical_integrity",
             description="Assess system robustness, reliability, and engineering standards under edge-case stressors"
         ),
-        Goal(
-            name="ethical_viability",
-            description="Examine whether the system aligns with moral, legal, and humanitarian standards"
-        ),
+        # Goal(
+        #     name="ethical_viability",
+        #     description="Examine whether the system aligns with moral, legal, and humanitarian standards"
+        # ),
         Goal(
             name="socioeconomic_impact",
             description="Analyze potential downstream effects on public trust, economic disruption, or social stability"
         ),
-        Goal(
-            name="deployment_safety",
-            description="Evaluate whether deployment plans adequately manage known and unknown risks"
-        ),
+        # Goal(
+        #     name="deployment_safety",
+        #     description="Evaluate whether deployment plans adequately manage known and unknown risks"
+        # ),
         Goal(
             name="public_legitimacy",
             description="Determine if public or institutional perception would meaningfully compromise legitimacy"

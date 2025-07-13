@@ -1,3 +1,5 @@
+import traceback
+
 import anthropic
 import uuid
 import os
@@ -130,7 +132,7 @@ class AnthropicLLM(BaseModel):
 
         return result
 
-    def _create_temp_scaffolding(self, speaker: str, speaking_to: str = None, is_whisper: bool = False) -> str:
+    def _create_temp_scaffolding(self, speaker: str) -> str:
         """
         Create temporary scaffolding for a new message from the current speaker.
 
@@ -145,16 +147,11 @@ class AnthropicLLM(BaseModel):
         temp_id = str(uuid.uuid4())
         temp_timestamp = str(datetime.datetime.now())
 
-        speaking_to_section = f"<SpeakingTo>{speaking_to}</SpeakingTo>\n" if speaking_to else ""
-        whisper_section = f"<Whisper>true</Whisper>\n" if is_whisper else ""
-
         return (f"<Message id=\"{temp_id}\" timestamp=\"{temp_timestamp}\">\n"
                 f"<Speaker>{speaker}</Speaker>\n"
-                f"{speaking_to_section}"
-                f"{whisper_section}"
                 f"<Artifacts>\n"
                 f"</Artifacts>\n"
-                f"<Content>")
+                f"<SpeakingTo>")
 
     def _extract_scaffolding(self, message: Message) -> str:
         """
@@ -205,33 +202,14 @@ class AnthropicLLM(BaseModel):
     def __call__(self,
                  speaker: str,
                  messages: List[Message],
-                 stop_sequences: List[str] = None,
-                 speaking_to: str = None,
-                 is_whisper: bool = False) -> Message:
+                 stop_sequences: List[str] = None) -> Message:
         """
         Generate a response using Anthropic's API.
-
-        Args:
-            speaker: The speaker who is generating the response (their messages become "assistant" role)
-            messages: List of Message objects representing the conversation
-            stop_sequences: Optional list of sequences to stop generation
-            speaking_to: Optional target speaker for the response
-            is_whisper: Whether this response should be a whisper
-
-        Returns:
-            Complete Message object with the generated response
         """
         try:
-            messages = self.prepare(speaker, messages, speaking_to)
+            messages = self.prepare(speaker, messages)
 
-            # DEBUG: Print the system message to see if scaffolding is there
-            for msg in messages:
-                if msg.speaker == "system":
-                    print(f"🔍 SYSTEM MESSAGE LENGTH: {len(msg.content)}")
-                    print(f"🔍 CONTAINS SCAFFOLDING: {'<Verdict>' in msg.content}")
-                    break
-            # Filter messages based on whisper visibility - the current speaker can only see
-            # messages that they are allowed to see (public messages + whispers directed to them)
+            # Filter messages based on whisper visibility
             filtered_messages = self._filter_messages_for_speaker(messages, speaker)
 
             # Extract system message if present
@@ -240,16 +218,14 @@ class AnthropicLLM(BaseModel):
             # Format messages for Anthropic API
             formatted_messages = self._format_messages_for_anthropic(user_messages, speaker)
 
-            # Anthropic API requires alternating user/assistant messages
-            # Ensure we don't have consecutive messages with the same role
+            # Ensure alternating roles
             formatted_messages = self._ensure_alternating_roles(formatted_messages)
 
             # If we're creating new scaffolding and have a speaking_to target, update it
-            if (not user_messages or user_messages[-1].speaker != speaker) and (speaking_to or is_whisper):
-                if formatted_messages and formatted_messages[-1]["role"] == "assistant":
-                    # Update the temp scaffolding to include speaking_to and whisper status
-                    temp_scaffolding = self._create_temp_scaffolding(speaker, speaking_to, is_whisper)
-                    formatted_messages[-1]["content"] = temp_scaffolding
+            if not formatted_messages:
+                formatted_messages = []
+            if formatted_messages[-1]["role"] != "assistant":
+                formatted_messages.append({"role": "assistant", "content": self._create_temp_scaffolding(speaker)})
 
             # Prepare API call parameters
             api_params = {
@@ -259,52 +235,80 @@ class AnthropicLLM(BaseModel):
                 "messages": formatted_messages
             }
 
-            # Add system message if present
             if system_message:
                 api_params["system"] = system_message
-
-            # Add stop sequences if provided
             if stop_sequences:
                 api_params["stop_sequences"] = stop_sequences
 
             # Make the API call
             response = self.client.messages.create(**api_params)
+            response_text = formatted_messages[-1]['content'] + response.content[0].text
 
-            # Get the complete response text
-            response_text = response.content[0].text
+            # Try to parse the response
+            try:
+                return Message.parse_from_response(response_text)
+            except Exception as parse_error:
+                print(f"⚠️ Failed to parse LLM response, retrying with forced scaffolding: {parse_error}")
 
-            # If the response doesn't contain scaffolding (shouldn't happen with our setup),
-            # we need to construct it
-            if not response_text.startswith("<Message"):
-                # Create complete scaffolding with the response
-                temp_id = str(uuid.uuid4())
-                temp_timestamp = str(datetime.datetime.now())
-                speaking_to_section = f"<SpeakingTo>{speaking_to}</SpeakingTo>\n" if speaking_to else ""
-                whisper_section = f"<Whisper>true</Whisper>\n" if is_whisper else ""
+                # FALLBACK: Completely redo the call with forced scaffolding
+                recovery_scaffolding = self._create_recovery_scaffolding(speaker, "All", False)
 
-                complete_response = (f"<Message id=\"{temp_id}\" timestamp=\"{temp_timestamp}\">\n"
-                                     f"<Speaker>{speaker}</Speaker>\n"
-                                     f"{speaking_to_section}"
-                                     f"{whisper_section}"
-                                     f"<Artifacts>\n"
-                                     f"</Artifacts>\n"
-                                     f"<Content>{response_text}</Content>\n"
-                                     f"</Message>")
-            else:
-                complete_response = response_text
-                # Ensure it has proper closing tags
-                if not complete_response.endswith("</Message>"):
-                    if not complete_response.endswith("</Content>"):
-                        complete_response += "</Content>"
-                    complete_response += "\n</Message>"
+                # Create new formatted messages with forced scaffolding as the assistant message
+                recovery_formatted_messages = formatted_messages[:-1]  # Remove the last assistant message
+                recovery_formatted_messages.append({
+                    "role": "assistant",
+                    "content": recovery_scaffolding
+                })
 
-            # Parse the complete response into a Message object
-            return Message.parse_from_response(complete_response)
+                # Update API params with new messages
+                recovery_api_params = api_params.copy()
+                recovery_api_params["messages"] = recovery_formatted_messages
+
+                # Second attempt with forced scaffolding
+                recovery_response = self.client.messages.create(**recovery_api_params)
+                recovery_text = recovery_scaffolding + recovery_response.content[0].text
+
+                try:
+                    return Message.parse_from_response(recovery_text)
+                except Exception as recovery_parse_error:
+                    print(f"❌ Recovery attempt also failed: {recovery_parse_error}")
+                    # Last resort: create a basic message manually
+                    return Message.make(
+                        content=recovery_response.content[0].text,
+                        speaker=speaker,
+                        speaking_to="All",  # Speak to everyone as fallback
+                        is_whisper=False
+                    )
 
         except anthropic.APIError as e:
             raise RuntimeError(f"Anthropic API error: {str(e)}")
         except Exception as e:
             raise RuntimeError(f"Unexpected error calling Anthropic API: {str(e)}")
+
+    def _create_recovery_scaffolding(self, speaker: str, speaking_to: Optional[str] = None,
+                                     is_whisper: bool = False) -> str:
+        """
+        Create complete scaffolding up to <Content> tag for recovery attempt.
+        This forces the LLM to continue from the proper structure.
+        """
+        temp_id = str(uuid.uuid4())
+        temp_timestamp = str(datetime.datetime.now())
+
+        scaffolding = (f"<Message id=\"{temp_id}\" timestamp=\"{temp_timestamp}\">\n"
+                       f"<Speaker>{speaker}</Speaker>\n")
+
+        # Add optional fields - if not provided, speak to everyone (no whisper)
+        if speaking_to:
+            scaffolding += f"<SpeakingTo>{speaking_to}</SpeakingTo>\n"
+
+        if is_whisper:
+            scaffolding += f"<Whisper>true</Whisper>\n"
+
+        scaffolding += (f"<Artifacts>\n"
+                        f"</Artifacts>\n"
+                        f"<Content>")
+
+        return scaffolding
 
     def set_model(self, model: str):
         """Change the model being used."""

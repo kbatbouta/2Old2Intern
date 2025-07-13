@@ -29,8 +29,9 @@ class Message(object):
         artifacts_section = "\n".join([f"<li id=\"{a.id}\" type=\"{a.arch_type}\">" + a.to_prompt() + "</li>"
                                        for a in self.artifacts])
 
-        speaking_to_section = f"<SpeakingTo>{self.speaking_to}</SpeakingTo>\n" if self.speaking_to else ""
-        whisper_section = f"<Whisper>true</Whisper>\n" if self.is_whisper else ""
+        speaking_to_section = f"<SpeakingTo>{self.speaking_to}</SpeakingTo>\n" if (
+            self.speaking_to) else "<SpeakingTo>All</SpeakingTo>"
+        whisper_section = f"<Whisper>true</Whisper>\n" if self.is_whisper else "<Whisper>False</Whisper>"
 
         return (f"<Message id=\"{self.id}\" timestamp=\"{self.timestamp}\">\n"
                 f"<Speaker>{self.speaker}</Speaker>\n"
@@ -171,7 +172,7 @@ Remember you can whisper to others, and you should - but not too often.
 Always use this exact scaffolding format in your responses.
 """
 
-    def prepare(self, speaker: str, messages: List[Message], speaking_to: Optional[str] = None) -> List[Message]:
+    def prepare(self, speaker: str, messages: List[Message]) -> List[Message]:
         """
         Prepare messages for LLM call by adding scaffolding examples to system message.
         Creates a system message if one doesn't exist. Non-destructive operation.
@@ -200,7 +201,7 @@ Always use this exact scaffolding format in your responses.
         if system_message_index is not None:
             # System message exists - append scaffolding to its content
             existing_system_msg = prepared_messages[system_message_index]
-            enhanced_content = scaffolding_examples + "\n\n" + existing_system_msg.content
+            enhanced_content = existing_system_msg.content + "\n\n" + scaffolding_examples
 
             # Create new system message with enhanced content
             enhanced_system_msg = Message(
@@ -228,8 +229,7 @@ Always use this exact scaffolding format in your responses.
         return prepared_messages
 
     @abc.abstractmethod
-    def __call__(self, speaker: str, messages: List[Message], speaking_to: Optional[str] = None,
-                 stop_sequences: List[str] = None) -> Message:
+    def __call__(self, speaker: str, messages: List[Message], stop_sequences: List[str] = None) -> Message:
         """
         Generate a response and return it as a complete Message object.
         Should call prepare() internally before making the LLM call.

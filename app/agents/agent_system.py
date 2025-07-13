@@ -1,5 +1,7 @@
 import random
 import time
+import traceback
+
 import regex
 from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass, field
@@ -354,9 +356,6 @@ Please ensure proper formatting in responses."""
                 messages_with_system = self.add_system_message(current_speaker)
 
                 # Determine speaking target
-                last_speaker = self.messages[-1].speaker if self.messages else None
-                speaking_to = self.determine_speaking_to(current_speaker, last_speaker) if last_speaker else None
-
                 agent_state = self.agents[current_speaker]
                 print(f"\n🤔 {agent_state.persona.name} is considering their response...")
 
@@ -366,15 +365,13 @@ Please ensure proper formatting in responses."""
                     coordinator_content = self.get_coordinator_message_content(urgency_level)
                     response_msg = Message.make(
                         content=coordinator_content,
-                        speaker=current_speaker,
-                        speaking_to=speaking_to
+                        speaker=current_speaker
                     )
                 else:
                     # Generate response for regular participants
                     response_msg = self.llm(
                         speaker=current_speaker,
                         messages=messages_with_system,
-                        speaking_to=speaking_to
                     )
 
                 # Validate message for regular participants
@@ -431,6 +428,7 @@ Please ensure proper formatting in responses."""
                 time.sleep(0.5)
 
             except Exception as e:
+                traceback.print_exc()
                 print(f"\n❌ Error generating response: {e}")
                 print(f"Current speaker: {current_speaker}")
                 break

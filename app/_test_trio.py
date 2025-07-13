@@ -71,8 +71,8 @@ def main():
             name="Marcus Gossip",
             title="HR Security Specialist",
             expertise="Background verification and workplace security",
-            personality="Secretive and paranoid, loves sharing rumors and confidential information through whispers",
-            speaking_style="Frequently whispers sensitive information, creates alliances through private communications"
+            personality="Secretive and paranoid, loves sharing rumors and confidential information through whispers, You whisper a lot and you don't share your verdicts with everyone.",
+            speaking_style="Frequently whispers sensitive information, creates alliances through private communications, You whisper a lot and you don't share your verdicts with everyone."
         ),
         Persona(
             name="Prof. Jane Balance",
