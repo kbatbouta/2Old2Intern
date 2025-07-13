@@ -239,8 +239,24 @@ Please ensure proper formatting in responses."""
         if not active_agents:
             return None
 
-        # Remove last speaker to avoid back-and-forth
-        if last_speaker and last_speaker.lower() in active_agents:
+        # Check if last message was a whisper
+        last_message_was_whisper = False
+        whisper_target = None
+        if self.messages:
+            last_msg = self.messages[-1]
+            last_message_was_whisper = last_msg.is_whisper
+            whisper_target = last_msg.speaking_to if last_message_was_whisper else None
+
+        # If last message was a whisper, heavily favor the whisper target responding
+        if last_message_was_whisper and whisper_target:
+            whisper_target_lower = whisper_target.lower()
+            if whisper_target_lower in active_agents:
+                # 80% chance the whisper target responds
+                if random.random() < 0.8:
+                    return whisper_target_lower
+
+        # Remove last speaker to avoid back-and-forth (unless it was a whisper)
+        if last_speaker and last_speaker.lower() in active_agents and not last_message_was_whisper:
             active_agents.remove(last_speaker.lower())
 
         if not active_agents:
@@ -251,6 +267,11 @@ Please ensure proper formatting in responses."""
         for agent_name in active_agents:
             agent_state = self.agents[agent_name]
             weight = max(1, 10 - agent_state.message_count)
+
+            # If this was a whisper target, give them extra weight
+            if last_message_was_whisper and whisper_target and agent_name == whisper_target.lower():
+                weight *= 3  # Triple their likelihood
+
             weights.append(weight)
 
         return random.choices(active_agents, weights=weights)[0]
