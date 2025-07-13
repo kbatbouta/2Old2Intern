@@ -19,7 +19,7 @@ def create_moderation_verdict_config() -> VerdictConfig:
 class ModerationWatcher(DebateWatcher):
     def __init__(self,
                  llm,
-                 check_interval: int = 5,
+                 check_interval: int = 8,
                  moderation_criteria: str = None,
                  length_multiplier: float = 2.0,
                  meta_watchers: List[DebateWatcher] = None):

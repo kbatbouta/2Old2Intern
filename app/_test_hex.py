@@ -1,266 +1,289 @@
 import os
 from dotenv import load_dotenv
 
+from watchers.moderators import create_quick_moderation_watcher
+from watchers.scheduled import ScheduledMessage
+
 # Load environment and setup path
 load_dotenv()
 
-from agents.debate_chain import Persona, ChainOfDebate, VerdictConfig, Goal, DebateTimeKeeperConfig
+from agents.debate_chain import Persona, ChainOfDebate, VerdictConfig, Goal, \
+    DebateTimeKeeperConfig
 from models.anthropic import AnthropicLLM
 
 
-def create_climate_verdict_config():
-    """Create verdict configuration for climate policy evaluation."""
+def create_pasta_debate_goals():
+    """Create goals specifically designed to test pasta superiority."""
+    return [
+        Goal(
+            name="initial_taste_assessment",
+            description="Provide your initial gut reaction about which pasta dish tastes better"
+        ),
+        Goal(
+            name="culinary_analysis",
+            description="Analyze the technical culinary merits, ingredients, and preparation methods of both dishes"
+        ),
+        Goal(
+            name="cultural_impact_evaluation",
+            description="Evaluate the cultural significance and historical importance of both pasta dishes"
+        )
+    ]
+
+
+def create_pasta_verdict_config():
+    """Create verdict configuration for pasta debate."""
     return VerdictConfig(
-        verdict_options=["SUPPORT", "SUPPORT_WITH_CONDITIONS", "OPPOSE", "ABSTAIN"],
+        verdict_options=["CARBONARA", "AMATRICIANA", "TIE", "ABSTAIN"],
         verdict_descriptions={
-            "SUPPORT": "Fully endorse the proposal as written",
-            "SUPPORT_WITH_CONDITIONS": "Support with specific modifications required",
-            "OPPOSE": "Reject the proposal entirely",
-            "ABSTAIN": "Cannot reach a position due to conflicting priorities"
+            "CARBONARA": "Carbonara is the superior pasta dish due to its exceptional taste and technique",
+            "AMATRICIANA": "Amatriciana is the superior pasta dish due to its exceptional taste and technique",
+            "TIE": "Both dishes are equally exceptional and cannot be definitively ranked",
+            "ABSTAIN": "Cannot reach a position due to conflicting culinary priorities"
         }
     )
 
 
-def create_climate_goals():
-    """Create goals that encourage coalition building and conflicts."""
-    return [
-        Goal(
-            name="economic_impact",
-            description="Assess the economic costs and benefits of the carbon tax proposal"
-        ),
-        Goal(
-            name="political_feasibility",
-            description="Evaluate the political viability and public acceptance challenges"
-        ),
-        Goal(
-            name="final_recommendation",
-            description="Reach consensus or document disagreements on the proposal"
-        )
-    ]
-
-
 def main():
-    """6-agent debate on carbon tax with built-in conflicts and alliance potential."""
+    """Test pasta superiority debate between culinary experts, politicians, and divine beings."""
 
-    # Controversial but real policy proposal
-    climate_context = """
-    PROPOSED FEDERAL CARBON TAX POLICY
+    # Context about both pasta dishes
+    pasta_context = """
+    THE GREAT PASTA DEBATE: CARBONARA vs AMATRICIANA
 
-    SUMMARY:
-    Congress is considering a federal carbon tax starting at $50/ton CO2, rising to $150/ton by 2035.
-    Revenue would fund: 50% direct rebates to households, 30% clean energy infrastructure, 20% deficit reduction.
+    CARBONARA:
+    - Origins: Roman cuisine, mid-20th century
+    - Key ingredients: Eggs, pecorino romano, guanciale, black pepper
+    - Preparation: Eggs and cheese mixed with hot pasta and rendered guanciale fat
+    - Texture: Creamy, silky sauce without cream
+    - Flavor profile: Rich, savory, with subtle pork and cheese notes
 
-    KEY PROVISIONS:
-    - Applies to fossil fuel producers/importers at point of extraction/import
-    - Border carbon adjustments to protect domestic industry
-    - Exemptions for agricultural fuels and small emitters (<25,000 tons/year)
-    - Automatic adjustment mechanism tied to emission reduction targets
-    - Sunset clause: policy expires in 2040 unless reauthorized
+    AMATRICIANA:
+    - Origins: Amatrice (Lazio region), traditional shepherd dish
+    - Key ingredients: Guanciale, tomatoes, pecorino romano, chili pepper
+    - Preparation: Guanciale rendered, tomatoes added, tossed with pasta and cheese
+    - Texture: Rustic tomato-based sauce with rendered fat
+    - Flavor profile: Tangy, spicy, with pronounced pork and tomato flavors
 
-    ECONOMIC PROJECTIONS:
-    - Estimated $200B annual revenue at full implementation
-    - 40-60% reduction in US emissions by 2035 (vs 2005 baseline)
-    - GDP impact: -0.1% to +0.3% depending on recycling mechanism
-    - Job losses in fossil fuel sectors: ~200,000 over 10 years
-    - Job gains in clean energy: ~400,000 over 10 years
-
-    POLITICAL CONTEXT:
-    - Support: Environmental groups, some economists, EU pressure for climate action
-    - Opposition: Oil/gas industry, coal states, taxpayer advocates, some unions
-    - Public polling: 45% support, 35% oppose, 20% undecided
-    - State variations: Blue states 60% support, red states 25% support
-
-    IMPLEMENTATION CHALLENGES:
-    - Supreme Court may review federal taxation authority
-    - Industry threatens to relocate to avoid tax
-    - Rural communities disproportionately affected by energy cost increases
-    - Coordination required with state-level climate policies
+    DEBATE QUESTION: Which pasta dish is objectively superior in taste, technique, and cultural significance?
     """
 
-    # 6 agents with natural conflicts and alliance potential
+    # Create diverse personas for the debate
     personas = [
         Persona(
-            name="Dr. Rachel Green",
-            title="Environmental Policy Director",
-            expertise="Climate science, environmental regulation, sustainability policy",
-            personality="Passionate about climate action, data-driven, impatient with economic excuses, forms alliances with other pro-environment voices",
-            speaking_style="Uses scientific evidence aggressively, whispers strategy with allies, dismissive of fossil fuel industry concerns"
+            name="Chef Massimo Bottura",
+            title="Michelin-starred Italian Chef",
+            expertise="Traditional Italian cuisine, modernist techniques, authentic regional cooking",
+            personality="Passionate about Italian culinary traditions, perfectionist with ingredients, emotional about food heritage",
+            speaking_style="Poetic and passionate, uses Italian phrases, emphasizes tradition and authenticity"
         ),
-
         Persona(
-            name="Marcus Steel",
-            title="Energy Industry Lobbyist",
-            expertise="Fossil fuel economics, energy markets, regulatory compliance costs",
-            personality="Protective of industry interests, skilled at finding policy flaws, builds coalitions with economic conservatives, secretive about industry talking points",
-            speaking_style="Focuses on economic damage and job losses, whispers confidential industry data, questions scientific projections"
+            name="Chef Julia Martinez",
+            title="James Beard Award Winner",
+            expertise="Italian-American fusion, culinary innovation, restaurant operations",
+            personality="Pragmatic perfectionist who values both tradition and innovation in cooking",
+            speaking_style="Professional yet warm, focuses on technique and flavor balance"
         ),
-
         Persona(
-            name="Senator Patricia Webb",
-            title="Swing State Senator",
-            expertise="Political strategy, electoral consequences, legislative process",
-            personality="Pragmatic politician balancing environmental and economic concerns, seeks middle ground, privately shares electoral calculations",
-            speaking_style="Diplomatic in public but reveals true political concerns in whispers, focuses on voter reactions and reelection"
+            name="Senator Giuseppe Pastaworthy",
+            title="Fictional Italian Senator & Food Policy Expert",
+            expertise="Cultural preservation, food legislation, regional Italian politics",
+            personality="Diplomatic but passionate about Italian cultural heritage, politically savvy",
+            speaking_style="Eloquent and persuasive, uses political rhetoric mixed with cultural pride"
         ),
-
         Persona(
-            name="Dr. James Brooks",
-            title="Economic Policy Analyst",
-            expertise="Tax policy, macroeconomic modeling, fiscal impact analysis",
-            personality="Numbers-focused technocrat, skeptical of both environmental activism and industry scare tactics, shares technical details privately",
-            speaking_style="Dry technical analysis publicly, whispers about data limitations and modeling assumptions with fellow wonks"
+            name="Governor Maria Carboni",
+            title="Fictional Governor of New Rome State",
+            expertise="Public policy, cultural affairs, Italian-American community leadership",
+            personality="Charismatic leader who bridges tradition and progress, community-focused",
+            speaking_style="Inspiring and inclusive, emphasizes unity while making decisive arguments"
         ),
-
         Persona(
-            name="Maria Santos",
-            title="Labor Union Representative",
-            expertise="Worker impacts, just transition policies, industrial relations",
-            personality="Protective of union jobs but worried about climate impacts on workers, torn between environmental and economic priorities, builds coalitions across class lines",
-            speaking_style="Emotional about worker impacts, whispers about internal union divisions, seeks alliances with both greens and industry when worker interests align"
+            name="Alex Chen",
+            title="AI Engineer & Amateur Food Blogger",
+            expertise="Machine learning, data analysis, food photography, amateur cooking",
+            personality="Analytical and curious, approaches food with scientific methodology and genuine enthusiasm",
+            speaking_style="Technical but accessible, uses data-driven arguments mixed with personal anecdotes"
         ),
-
         Persona(
-            name="Robert Chase",
-            title="Fiscal Conservative Think Tank Fellow",
-            expertise="Government spending, taxation policy, regulatory burden analysis",
-            personality="Ideologically opposed to new taxes and government intervention, forms alliances with industry against big government, shares libertarian talking points privately",
-            speaking_style="Attacks government overreach and spending, whispers about political strategy with industry allies, questions government competence"
+            name="The Divine Creator",
+            title="Omnipotent Being & Ultimate Taste Authority",
+            expertise="Infinite wisdom, perfect taste, knowledge of all flavors across existence",
+            personality="Benevolent and wise, with a surprising appreciation for mortal culinary achievements",
+            speaking_style="Majestic yet approachable, speaks with authority but shows gentle humor about mortal food debates"
         )
     ]
 
-    # Extended timekeeper for complex alliances
+    # Moderate timekeeper to allow proper debate flow
     timekeeper_config = DebateTimeKeeperConfig(
-        intervention_interval=5,  # More room for whisper networks
-        insist_threshold=20,  # Allow coalition building
-        demand_threshold=35,  # Extended debate time
-        force_verdict_threshold=50  # Lengthy deadline for complex issue
+        intervention_interval=6,  # Allow more discussion
+        insist_threshold=12,  # Give time for proper arguments
+        demand_threshold=20,  # Build urgency gradually
+        force_verdict_threshold=18  # Reasonable deadline
     )
+
+    llm = AnthropicLLM(os.environ.get("ANTHROPIC_API_KEY"))
 
     # Setup debate
     debate = ChainOfDebate(
-        llm=AnthropicLLM(os.environ.get("ANTHROPIC_API_KEY")),
-        debate_topic="Federal Carbon Tax Policy Proposal",
-        context_content=climate_context,
-        verdict_config=create_climate_verdict_config(),
-        goals=create_climate_goals(),
-        timekeeper_config=timekeeper_config
+        llm=llm,
+        debate_topic="The Ultimate Pasta Showdown: Carbonara vs Amatriciana - Which Tastes Better?",
+        context_content=pasta_context,
+        verdict_config=create_pasta_verdict_config(),
+        goals=create_pasta_debate_goals(),
+        timekeeper_config=timekeeper_config,
+        watchers=[
+            ScheduledMessage(
+                "Remember, this is ultimately about TASTE - which dish provides superior flavor experience?",
+                lambda speaker, orchestrator_api: orchestrator_api.debate_messages_count() > 5),
+            ScheduledMessage(
+                "Consider the sensory experience: texture, aroma, flavor complexity, and overall satisfaction.",
+                lambda speaker, orchestrator_api: orchestrator_api.debate_messages_count() > 10),
+            ScheduledMessage(
+                "Both dishes have cultural significance, but which one actually tastes better when you eat it?",
+                lambda speaker, orchestrator_api: orchestrator_api.debate_messages_count() > 15),
+            create_quick_moderation_watcher(llm,
+                                            "Your role is to ensure this debate stays focused on which pasta dish actually tastes better. "
+                                            "While cultural and technical aspects matter, the core question is about superior flavor and eating experience. "
+                                            "If debaters get too caught up in history or technique without addressing taste, redirect them. "
+                                            "The goal is to determine which dish provides the better culinary experience when consumed. "
+                                            "Ensure they're being fair to both dishes and considering actual taste qualities.")
+        ]
     )
 
-    print("🏛️ CLIMATE POLICY DEBATE - 6 AGENTS")
-    print("=" * 60)
-    print("EXPECTED CONFLICTS:")
-    print("• Environment (Green) vs Industry (Steel)")
-    print("• Labor (Santos) torn between jobs and climate")
-    print("• Fiscal Conservative (Chase) vs any new taxes")
-    print("• Senator (Webb) balancing political pressures")
-    print("• Economist (Brooks) providing technical reality checks")
-    print("\nEXPECTED ALLIANCES:")
-    print("• Green + Santos (environmental justice)")
-    print("• Steel + Chase (anti-tax coalition)")
-    print("• Webb + Brooks (pragmatic center)")
-    print("• Cross-cutting alliances on specific provisions")
-    print("=" * 60)
+    print("🍝 THE GREAT PASTA DEBATE")
+    print("=" * 50)
+    print("QUESTION: Carbonara or Amatriciana - Which Tastes Better?")
+    print("=" * 50)
+    print("OBJECTIVES:")
+    print("1. Determine which pasta dish provides superior taste experience")
+    print("2. Evaluate culinary technique and flavor complexity")
+    print("3. Consider cultural impact while focusing on taste")
+    print("4. Reach definitive conclusions from diverse expert perspectives")
+    print("=" * 50)
 
     debate.setup_agents(personas)
 
-    # Enhanced whisper tracking
-    whisper_stats = {
-        'total_whispers': 0,
-        'whispers_by_agent': {},
-        'whisper_networks': {},  # Track who whispers to whom
-        'alliance_formations': [],  # Track coalition building
-        'public_messages': 0,
-        'conflict_moments': 0
-    }
+    # Track goal transitions for analysis
+    goal_transitions = []
+    original_check_completion = debate._check_goal_completion
 
-    original_print_message = debate.print_message
-
-    def enhanced_print_message(message, custom_fields, achieved_goals):
-        # Track statistics
-        if message.is_whisper:
-            whisper_stats['total_whispers'] += 1
-            whisper_stats['whispers_by_agent'][message.speaker] = whisper_stats['whispers_by_agent'].get(
-                message.speaker, 0) + 1
-
-            # Track whisper networks
-            if message.speaker not in whisper_stats['whisper_networks']:
-                whisper_stats['whisper_networks'][message.speaker] = []
-            if message.speaking_to not in whisper_stats['whisper_networks'][message.speaker]:
-                whisper_stats['whisper_networks'][message.speaker].append(message.speaking_to)
-
-            # Detect alliance formation keywords
-            alliance_keywords = ['alliance', 'coalition', 'together', 'coordinate', 'strategy', 'team up', 'work with']
-            if any(keyword in message.content.lower() for keyword in alliance_keywords):
-                whisper_stats['alliance_formations'].append(f"{message.speaker} → {message.speaking_to}")
+    def tracked_check_completion():
+        if debate.current_goal:
+            current_goal_name = debate.current_goal.name
         else:
-            whisper_stats['public_messages'] += 1
+            current_goal_name = "None"
 
-        # Detect conflict moments
-        conflict_keywords = ['disagree', 'wrong', 'oppose', 'reject', 'flawed', 'misguided', 'naive']
-        if any(keyword in message.content.lower() for keyword in conflict_keywords):
-            whisper_stats['conflict_moments'] += 1
+        original_check_completion()
 
-        # Call original
-        original_print_message(message, custom_fields, achieved_goals)
+        if debate.current_goal:
+            new_goal_name = debate.current_goal.name
+        else:
+            new_goal_name = "Completed"
 
-        # Add enhanced annotations
-        if message.is_whisper:
-            print(f"    🤫 PRIVATE: Only {message.speaker} and {message.speaking_to} can see this")
+        if current_goal_name != new_goal_name:
+            goal_transitions.append({
+                'from': current_goal_name,
+                'to': new_goal_name,
+                'message_count': debate.message_count,
+                'active_agents': len(debate.get_active_agents())
+            })
+            print(f"\n🔄 GOAL TRANSITION: {current_goal_name} → {new_goal_name}")
 
-        # Detect coalition building
-        if message.is_whisper and any(
-                word in message.content.lower() for word in ['alliance', 'coordinate', 'strategy']):
-            print(f"    🤝 COALITION BUILDING DETECTED")
-
-    debate.print_message = enhanced_print_message
+    debate._check_goal_completion = tracked_check_completion
 
     try:
         results = debate.run_debate()
 
-        # Enhanced analysis
         print("\n" + "=" * 70)
-        print("🏛️ DEBATE ANALYSIS")
+        print("🍝 PASTA DEBATE RESULTS")
         print("=" * 70)
 
-        print(f"\n📊 COMMUNICATION PATTERNS:")
+        print(f"\n📊 DEBATE SUMMARY:")
         print(f"   Total messages: {results['message_count']}")
-        print(f"   Public debates: {whisper_stats['public_messages']}")
-        print(f"   Private whispers: {whisper_stats['total_whispers']}")
-        print(f"   Conflict moments: {whisper_stats['conflict_moments']}")
+        print(f"   Goals completed: {len(results['completed_goals'])}/3")
+        print(f"   Goal transitions: {len(goal_transitions)}")
 
-        print(f"\n🗣️ WHISPER ACTIVITY:")
-        for agent, count in sorted(whisper_stats['whispers_by_agent'].items(), key=lambda x: x[1], reverse=True):
-            print(f"   {agent}: {count} private communications")
+        print(f"\n🔄 DISCUSSION FLOW:")
+        for i, transition in enumerate(goal_transitions, 1):
+            print(f"   {i}. {transition['from']} → {transition['to']}")
+            print(f"      At message {transition['message_count']}, {transition['active_agents']} experts active")
 
-        print(f"\n🕸️ WHISPER NETWORKS:")
-        for agent, targets in whisper_stats['whisper_networks'].items():
-            print(f"   {agent} → {', '.join(targets)}")
+        print(f"\n🎯 DEBATE PHASES:")
+        completed_goals = results['completed_goals']
+        expected_goals = ['initial_taste_assessment', 'culinary_analysis', 'cultural_impact_evaluation']
 
-        if whisper_stats['alliance_formations']:
-            print(f"\n🤝 COALITION BUILDING DETECTED:")
-            for formation in whisper_stats['alliance_formations']:
-                print(f"   {formation}")
-        else:
-            print(f"\n🤝 No explicit coalition building detected in whispers")
+        for goal in expected_goals:
+            status = "✅ COMPLETED" if goal in completed_goals else "❌ INCOMPLETE"
+            print(f"   {goal}: {status}")
 
-        print(f"\n📋 FINAL POSITIONS:")
-        for agent, verdict in results['verdicts'].items():
-            print(f"   {agent}: {verdict or 'NO POSITION'}")
+        print(f"\n🏆 FINAL VERDICTS:")
+        carbonara_votes = 0
+        amatriciana_votes = 0
 
-        # Identify winning coalitions
-        verdict_counts = {}
-        for verdict in results['verdicts'].values():
+        for agent_name, verdict in results['verdicts'].items():
             if verdict:
-                verdict_counts[verdict] = verdict_counts.get(verdict, 0) + 1
+                print(f"   {agent_name}: {verdict}")
+                if "CARBONARA" in verdict.upper():
+                    carbonara_votes += 1
+                elif "AMATRICIANA" in verdict.upper():
+                    amatriciana_votes += 1
+            else:
+                print(f"   {agent_name}: NO VERDICT REACHED")
 
-        print(f"\n🏆 COALITION OUTCOMES:")
-        for verdict, count in sorted(verdict_counts.items(), key=lambda x: x[1], reverse=True):
-            print(f"   {verdict}: {count} agents ({count / 6 * 100:.1f}%)")
+        print(f"\n📊 VOTE TALLY:")
+        print(f"   🥓 Carbonara: {carbonara_votes} votes")
+        print(f"   🍅 Amatriciana: {amatriciana_votes} votes")
+
+        if carbonara_votes > amatriciana_votes:
+            winner = "CARBONARA"
+            print(f"   🏆 WINNER: {winner}")
+        elif amatriciana_votes > carbonara_votes:
+            winner = "AMATRICIANA"
+            print(f"   🏆 WINNER: {winner}")
+        else:
+            print(f"   🤝 RESULT: TIE")
+
+        # Analysis
+        print(f"\n🔍 DEBATE ANALYSIS:")
+        issues = []
+
+        if len(completed_goals) < 3:
+            issues.append(f"Only {len(completed_goals)}/3 debate phases completed")
+
+        if len(goal_transitions) < 2:
+            issues.append("Insufficient goal transitions - debate may have stalled")
+
+        if results['message_count'] > 60:
+            issues.append("Excessive messages - debate may have been inefficient")
+
+        if not any(results['verdicts'].values()):
+            issues.append("No final verdicts recorded from any expert")
+
+        if carbonara_votes == amatriciana_votes == 0:
+            issues.append("No clear preference determined despite expert opinions")
+
+        if not issues:
+            print("   ✅ Successful debate with clear outcomes!")
+        else:
+            for issue in issues:
+                print(f"   ⚠️ {issue}")
+
+        # Recommendations
+        if issues:
+            print(f"\n💡 RECOMMENDATIONS:")
+            if "stalled" in str(issues):
+                print("   - Review goal transition logic and agent re-engagement")
+                print("   - Ensure system messages about phase changes are clear")
+            if "verdicts" in str(issues):
+                print("   - Strengthen verdict validation and formatting requirements")
+                print("   - Provide clearer scaffolding examples for pasta preferences")
+            if "messages" in str(issues):
+                print("   - Optimize TimeKeeper intervals for more efficient debate flow")
+                print("   - Implement more focused moderation to prevent tangents")
 
     except Exception as e:
-        print(f"\n❌ DEBATE ERROR: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"\n❌ SYSTEM ERROR: {e}")
+        print("This might indicate issues with the debate orchestration system")
 
     return results
 
