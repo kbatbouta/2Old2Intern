@@ -1,4 +1,4 @@
-# 🔗 Chain of Debate Framework
+# 🔗2Old2Intern
 
 
 **[WIP - Evolving Architecture]** A powerful, general-purpose multi-agent orchestration system that enables AI experts to engage in structured debates through sequential goal progression, with advanced features like whisper communications and automated moderation.
