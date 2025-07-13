@@ -49,13 +49,13 @@ class ModerationWatcher(DebateWatcher):
         if self.length_multiplier <= 2:
             # Very short debates
             intervention_interval = 1
-            insist_threshold = 2
+            insist_threshold = 1
             demand_threshold = 3
             force_verdict_threshold = base_messages
         elif self.length_multiplier <= 4:
             # Short debates
-            intervention_interval = 2
-            insist_threshold = 3
+            intervention_interval = 1
+            insist_threshold = 2
             demand_threshold = 4
             force_verdict_threshold = base_messages
         else:
