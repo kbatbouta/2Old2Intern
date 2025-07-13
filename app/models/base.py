@@ -166,6 +166,8 @@ IMPORTANT: Whisper messages with <Whisper>true</Whisper> are PRIVATE and can onl
 
 All other participants will NOT see whisper messages. Use whispers for private communications.
 
+Remember you can whisper to others, and you should - but not too often.
+
 Always use this exact scaffolding format in your responses.
 """
 

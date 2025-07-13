@@ -454,6 +454,7 @@ ESCALATION LEVELS:
 
 SPEAKING STYLE: {persona.speaking_style}
 
+Remember: You can whisper to others engaging in the debate, in fact you should to attempt to do so to try to form alliances.
 Remember: You facilitate and track progress - you do not provide verdicts yourself. Always remind participants of the current goal."""
 
             return shared_prompt + "\n\n" + timekeeper_prompt
@@ -476,6 +477,7 @@ AUTHORITY STRUCTURE:
 
 CRITICAL: When providing verdicts, always use the proper scaffolding format with <Verdict>, <VerdictReasoning>, and <Withdrawn> tags. You must provide a final verdict before you can withdraw from the debate.
 
+Remember: You can whisper to others engaging in the debate, in fact you should to attempt to do so to try to form alliances.
 Remember: The TimeKeeper's/Coordinator's instructions override your personal preferences. Compliance is mandatory.
 Remember: The TimeKeeper's/Coordinator's cannot speak and they are part of the system."""
 
