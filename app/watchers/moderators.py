@@ -32,13 +32,13 @@ class ModerationWatcher(DebateWatcher):
 
     def _default_criteria(self) -> str:
         return """
-MODERATION CRITERIA:
-- Are participants staying on topic?
-- Is the discussion respectful and professional?
-- Are agents making progress toward goals?
-- Are there any format violations or derailments?
-- Should any corrective action be taken?
-"""
+    EVALUATION QUESTIONS:
+    - Are participants staying on topic?
+    - Is the discussion respectful and professional?
+    - Are agents making progress toward goals?
+    - Are there any format violations or derailments?
+    - Should any corrective action be taken?
+    """
 
     def _calculate_meta_debate_config(self) -> tuple:
         """Calculate meta-debate configuration based on length multiplier"""
@@ -96,14 +96,31 @@ MODERATION CRITERIA:
             debate_topic="URGENT MODERATION REVIEW: Is the debate proceeding appropriately?",
             context_content=f"""
 DEBATE LOG TO REVIEW:
-{debate_log}
 
+<Logs>
+{debate_log}
+</Logs>
+
+<Task>
 {self.moderation_criteria}
+</Task>
+
+MODERATION CRITERIA:
+You are part of a meta-debate evaluating the primary debate below. Your role is to assess whether intervention is needed and vote accordingly.
+
+VOTING MECHANISM:
+- If you vote for GENTLE_REDIRECT, FIRM_CORRECTION, or URGENT_INTERVENTION, explain the specific intervention needed in your reasoning
+- A MAJORITY VOTE from your meta-debate team is required for any intervention to be sent to the primary debate
+- If majority votes NO_ACTION, no intervention occurs
+- If no clear majority emerges, no intervention occurs (erring on side of non-interference)
+- All reasoning from agents voting for the winning majority position will be combined and sent as the intervention message
+
+Your verdict and reasoning directly impact whether and how the primary debate is moderated.
 
 IMPORTANT: This is a SHORT meta-analysis (target: {int(self.length_multiplier)} messages). If you vote for GENTLE_REDIRECT, FIRM_CORRECTION, or URGENT_INTERVENTION, write your specific intervention message in your verdict reasoning - this will be sent directly to the debate participants.
 """,
             verdict_config=create_moderation_verdict_config(),
-            goals=[Goal("moderation_decision", "Decide if intervention is needed and craft response message")],
+            goals=[Goal("moderation_decision", "Decide if intervention is needed and craft response message, according to the <Task> tag.")],
             timekeeper_config=timekeeper_config,
             watchers=self.meta_watchers  # Pass watchers to meta-debate
         )
@@ -135,20 +152,62 @@ IMPORTANT: This is a SHORT meta-analysis (target: {int(self.length_multiplier)} 
         intervention_message = self.extract_intervention_from_meta_results(meta_results)
 
         if intervention_message:
-            orchestrator_api.inject_message(intervention_message, "moderation_system")
+            orchestrator_api.inject_message(intervention_message, "coordinator")
 
     def extract_intervention_from_meta_results(self, meta_results) -> str:
-        """Extract intervention message from meta-debate verdicts"""
-        for agent_name, verdict in meta_results.get('verdicts', {}).items():
+        """Extract intervention message from meta-debate verdicts using majority vote"""
+        # Extract verdicts from the results structure
+        verdicts = meta_results.get('verdicts', {})
+        verdict_details = meta_results.get('verdict_details', {})
+
+        # Count votes for intervention actions
+        verdict_counts = {}
+        verdict_reasoning = {}
+
+        for agent_name, verdict in verdicts.items():
             if verdict in ['GENTLE_REDIRECT', 'FIRM_CORRECTION', 'URGENT_INTERVENTION']:
-                # Get the reasoning which contains the intervention instructions
-                verdict_details = meta_results.get('verdict_details', {})
+                verdict_counts[verdict] = verdict_counts.get(verdict, 0) + 1
+
+                # Get the reasoning from verdict_details
                 agent_details = verdict_details.get(agent_name, {})
-                reasoning = agent_details.get('reasoning', '')
+                reasoning = agent_details.get('reasoning')
 
                 if reasoning:
-                    return f"🔍 Moderation: {reasoning}"
+                    if verdict not in verdict_reasoning:
+                        verdict_reasoning[verdict] = []
+                    verdict_reasoning[verdict].append(reasoning)
 
+        # Check for NO_ACTION votes
+        no_action_count = sum(1 for v in verdicts.values() if v == 'NO_ACTION')
+
+        # Determine if there's a majority for intervention
+        total_votes = len(verdicts)
+        majority_threshold = total_votes // 2 + 1
+
+        # Find the verdict with the most votes
+        if verdict_counts:
+            winning_verdict = max(verdict_counts.items(), key=lambda x: x[1])
+            winning_action, winning_count = winning_verdict
+
+            # Check if winning intervention has majority
+            if winning_count >= majority_threshold:
+                # Combine all reasoning for the winning verdict
+                all_reasoning = verdict_reasoning.get(winning_action, [])
+                if all_reasoning:
+                    combined_reasoning = " | ".join(all_reasoning)
+                    urgency_prefix = {
+                        'GENTLE_REDIRECT': '🟡',
+                        'FIRM_CORRECTION': '🔴',
+                        'URGENT_INTERVENTION': '⚠️'
+                    }
+                    prefix = urgency_prefix.get(winning_action, '🔍')
+                    return f"{prefix} Moderation ({winning_action}): {combined_reasoning}"
+
+        # Check if NO_ACTION has majority
+        if no_action_count >= majority_threshold:
+            return None  # No intervention needed
+
+        # No clear majority - default to no action
         return None
 
 

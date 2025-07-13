@@ -627,12 +627,67 @@ Remember: The TimeKeeper's/Coordinator's cannot speak and they are part of the s
         results = self.run_conversation()
 
         # Add verdict-specific results
-        results['verdicts'] = {name: state.custom_data.get('verdict') for name, state in self.agents.items()
-                               if state.persona.agent_type == AgentType.PARTICIPANT}
+        verdicts = {}
+        verdict_details = {}
+        verdict_counts = {option: 0 for option in self.verdict_config.verdict_options}
+
+        for agent_name, state in self.agents.items():
+            if state.persona.agent_type != AgentType.PARTICIPANT:
+                continue
+
+            persona = state.persona
+            verdict = state.custom_data.get('verdict')
+            reasoning = state.custom_data.get('verdict_reasoning')
+
+            verdicts[agent_name] = verdict
+            verdict_details[agent_name] = {
+                'verdict': verdict,
+                'reasoning': reasoning,
+                'persona_name': persona.name,
+                'persona_title': persona.title
+            }
+
+            if verdict and verdict in verdict_counts:
+                verdict_counts[verdict] += 1
+
+        # Calculate verdict summary
+        total_verdicts = sum(verdict_counts.values())
+        verdict_summary = {}
+        for option, count in verdict_counts.items():
+            if count > 0:
+                percentage = (count / total_verdicts * 100) if total_verdicts > 0 else 0
+                verdict_summary[option] = {
+                    'count': count,
+                    'percentage': percentage
+                }
 
         # Add goal completion results
-        results['completed_goals'] = [goal.name for goal in self.completed_goals]
-        results['total_goals'] = len(self.completed_goals) + (1 if self.current_goal else 0) + len(self.goal_queue)
+        goal_results = []
+        all_goals = self.completed_goals.copy()
+        if self.current_goal:
+            all_goals.append(self.current_goal)
+
+        for i, goal in enumerate(all_goals, 1):
+            goal_results.append({
+                'goal_number': i,
+                'name': goal.name,
+                'description': goal.description,
+                'achieved': goal.achieved,
+                'achievement_message': goal.achievement_message if hasattr(goal, 'achievement_message') else None
+            })
+
+        # Update results with detailed information
+        results.update({
+            'verdicts': verdicts,
+            'verdict_details': verdict_details,
+            'verdict_summary': verdict_summary,
+            'verdict_counts': verdict_counts,
+            'completed_goals': [goal.name for goal in self.completed_goals],
+            'goal_results': goal_results,
+            'total_goals': len(all_goals),
+            'current_goal': self.current_goal.name if self.current_goal else None,
+            'goals_completed_count': len(self.completed_goals)
+        })
 
         return results
 
