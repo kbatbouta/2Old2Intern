@@ -372,7 +372,7 @@ Use proper scaffolding in your message content tag:
 <VerdictReasoning>Your reasoning</VerdictReasoning>
 <Withdrawn>true | false</Withdrawn>
 
-Remember to withdraw yourself once you have the final verdict.
+Remember to withdraw yourself once you have the final verdict, also the Verdict tag accepts only literal keys from {verdict_options}
 
 No more discussion without verdicts.{current_goal_status}"""
 
@@ -383,10 +383,10 @@ I am INSISTING on verdicts from participants who haven't decided: {', '.join(par
 
 Please use structured format in your message content tag:
 <Verdict>{verdict_options}</Verdict>
-<VerdictReasoning>Your reasoning</VerdictReasoning>
-<Withdrawn>true | false</Withdrawn>{current_goal_status}
+<VerdictReasoning>[extended explanation including any recommendations or instructions]</VerdictReasoning>
+<Withdrawn>true|false</Withdrawn>{current_goal_status}
 
-Remember to withdraw yourself once you have the final verdict.
+Remember to withdraw yourself once you have the final verdict, also the Verdict tag accepts only literal keys from {verdict_options}
 """
 
         else:  # remind
@@ -394,8 +394,10 @@ Remember to withdraw yourself once you have the final verdict.
 
 Ensure you're using proper scaffolding in your message content tag:
 - <Verdict>{verdict_options}</Verdict>
-- <VerdictReasoning>explanation</VerdictReasoning>
+- <VerdictReasoning>[extended explanation including any recommendations or instructions]</VerdictReasoning>
 - <Withdrawn>true|false</Withdrawn>
+
+Remember, the Verdict tag accepts only literal keys from {verdict_options}
 
 {f'Still need verdicts from: {", ".join(participant_names)}' if participant_names else 'All verdicts received!'}{current_goal_status}"""
 
