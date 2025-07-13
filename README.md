@@ -327,13 +327,9 @@ Structured final recommendations
 ## Why This Is Valuable
 
 **🎯 Better Decisions:** Multiple expert perspectives catch blind spots that single AIs miss
-
 **🤝 Realistic Dynamics:** Private communications and coalition-building mirror real human expert panels
-
 **📊 Systematic Analysis:** Sequential goal processing ensures comprehensive evaluation
-
 **⚡ Scalable Expertise:** Can simulate expert panels for any topic without coordinating real humans
-
 **🔍 Transparent Process:** You can see not just the final decision, but how it was reached through the debate
 
 ## What Makes It "New"
