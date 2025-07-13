@@ -136,6 +136,8 @@ def main():
         force_verdict_threshold=30
     )
 
+    llm = AnthropicLLM(os.environ.get("ANTHROPIC_API_KEY"))
+    llm.set_model("claude-3-5-sonnet-latest")
     debate = ChainOfDebate(
         llm=AnthropicLLM(os.environ.get("ANTHROPIC_API_KEY")),
         debate_topic="Operation Prometheus Deployment: Strategic Risk Evaluation",

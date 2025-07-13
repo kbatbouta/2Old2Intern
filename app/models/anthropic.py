@@ -66,7 +66,7 @@ class AnthropicLLM(BaseModel):
             role = "assistant" if msg.speaker == current_speaker else "user"
 
             # Use the full to_prompt method for all messages
-            content = msg.to_prompt()
+            content = msg.to_prompt(speaker=current_speaker)
 
             formatted_messages.append({
                 "role": role,

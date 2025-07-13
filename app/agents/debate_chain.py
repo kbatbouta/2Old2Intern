@@ -356,7 +356,7 @@ All participants must provide final verdicts NOW in their message content. Use t
 
 <Verdict>{verdict_options}</Verdict>
 <VerdictReasoning>Your reasoning</VerdictReasoning>
-<Withdrawn>true</Withdrawn>
+<Withdrawn>true</Withdrawn> 
 
 Participants still needed: {', '.join(participant_names) if participant_names else 'None - all verdicts received'}{current_goal_status}"""
 
@@ -370,6 +370,8 @@ Use proper scaffolding in your message content tag:
 <VerdictReasoning>Your reasoning</VerdictReasoning>
 <Withdrawn>true | false</Withdrawn>
 
+Remember to withdraw yourself once you have the final verdict.
+
 No more discussion without verdicts.{current_goal_status}"""
 
         elif urgency_level == "insist":
@@ -380,7 +382,10 @@ I am INSISTING on verdicts from participants who haven't decided: {', '.join(par
 Please use structured format in your message content tag:
 <Verdict>{verdict_options}</Verdict>
 <VerdictReasoning>Your reasoning</VerdictReasoning>
-<Withdrawn>true | false</Withdrawn>{current_goal_status}"""
+<Withdrawn>true | false</Withdrawn>{current_goal_status}
+
+Remember to withdraw yourself once you have the final verdict.
+"""
 
         else:  # remind
             return f"""📋 Process Reminder - Message {self.message_count}
@@ -469,11 +474,14 @@ SPEAKING STYLE: {persona.speaking_style}
 Focus your evaluation on aspects related to your expertise. Maintain your personality throughout the debate.
 
 AUTHORITY STRUCTURE:
+- You don't trust others by default, you examine what they are thinking.
+- You don't need to agree with everyone, push back, be human with reason, and maybe some emotions.
 - The TimeKeeper/Coordinator has FULL AUTHORITY over this debate
 - You MUST comply with ALL TimeKeeper instructions and deadlines
 - When the TimeKeeper demands verdicts, you MUST provide them immediately
 - Follow ALL formatting requirements specified by the TimeKeeper
 - Respect escalation levels - urgency increases as message count grows
+- Once you have your final verdict on a goal you must withdraw yourself.
 
 CRITICAL: When providing verdicts, always use the proper scaffolding format with <Verdict>, <VerdictReasoning>, and <Withdrawn> tags. You must provide a final verdict before you can withdraw from the debate.
 
@@ -512,6 +520,7 @@ Remember: The TimeKeeper's/Coordinator's cannot speak and they are part of the s
 
         print(f"\n[{self.message_count}] {persona.name.upper()} ({persona.title}){speaking_to_str}{status_str}:")
         print(f"(is_whisper={message.is_whisper})")
+        print(f"\n<PrivateThoughts speaker=\"{message.speaker}\">{message.thoughts}</PrivateThoughts>\n")
         print(f"    {message.content}")
 
         if reasoning:

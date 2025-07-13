@@ -16,7 +16,7 @@ class Artifact(abc.ABC):
 
 class Message(object):
     def __init__(self, id: str, content: str, speaker: str, timestamp: str, artifacts: List[Artifact],
-                 speaking_to: Optional[str] = None, is_whisper: bool = False):
+                 speaking_to: Optional[str] = None, is_whisper: bool = False, thoughts: str =None):
         self.id = id
         self.content = content
         self.speaker = speaker
@@ -24,15 +24,19 @@ class Message(object):
         self.artifacts = artifacts
         self.speaking_to = speaking_to
         self.is_whisper = is_whisper
+        self.thoughts = thoughts
 
-    def to_prompt(self, **kwargs) -> str:
+    def to_prompt(self, speaker=None, **kwargs) -> str:
         artifacts_section = "\n".join([f"<li id=\"{a.id}\" type=\"{a.arch_type}\">" + a.to_prompt() + "</li>"
                                        for a in self.artifacts])
 
         speaking_to_section = f"<SpeakingTo>{self.speaking_to}</SpeakingTo>\n" if (
             self.speaking_to) else "<SpeakingTo>All</SpeakingTo>"
         whisper_section = f"<Whisper>true</Whisper>\n" if self.is_whisper else "<Whisper>False</Whisper>"
-
+        if self.speaker == speaker:
+            thoughts_section = f"<PrivateThoughts>{self.thoughts}</PrivateThoughts>\n" if self.thoughts else "<PrivateThoughts></PrivateThoughts>\n"
+        else:
+            thoughts_section = ""
         return (f"<Message id=\"{self.id}\" timestamp=\"{self.timestamp}\">\n"
                 f"<Speaker>{self.speaker}</Speaker>\n"
                 f"{speaking_to_section}"
@@ -40,6 +44,7 @@ class Message(object):
                 f"<Artifacts>\n"
                 f"{artifacts_section}\n"
                 f"</Artifacts>\n"
+                f"{thoughts_section}"
                 f"<Content>{self.content}</Content>\n"
                 f"</Message>")
 
@@ -85,10 +90,13 @@ class Message(object):
         content_match = re.search(r'<Content>(.*?)</Content>', response_text, re.DOTALL)
         content = content_match.group(1).strip() if content_match else ""
 
+        thoughts_match = re.search(r'<PrivateThoughts>(.*?)</PrivateThoughts>', response_text, re.DOTALL)
+        thoughts = thoughts_match.group(1).strip() if thoughts_match else ""
+
         # For now, artifacts parsing is simplified - you'd need to implement based on your Artifact classes
         artifacts = []
 
-        return Message(msg_id, content, speaker, timestamp, artifacts, speaking_to, is_whisper)
+        return Message(msg_id, content, speaker, timestamp, artifacts, speaking_to, is_whisper, thoughts)
 
     def can_be_seen_by(self, speaker: str) -> bool:
         """
@@ -139,6 +147,7 @@ Example 1 - Regular message (visible to everyone):
 <Speaker>John</Speaker>
 <Artifacts>
 </Artifacts>
+<PrivateThoughts>Your critical private detailed thoughts before you speak. Here you can speak your opinions about others and prepare your argument. Others can see these so be as critical as you want.</PrivateThoughts>
 <Content>I think we should consider the technical implications here.</Content>
 </Message>
 
@@ -148,6 +157,7 @@ Example 2 - Message with speaking target (visible to everyone):
 <SpeakingTo>John</SpeakingTo>
 <Artifacts>
 </Artifacts>
+<PrivateThoughts>Your critical private detailed thoughts before you speak. Here you can speak your opinions about others and prepare your argument. Others can see these so be as critical as you want.</PrivateThoughts>
 <Content>John, what's your take on the performance metrics?</Content>
 </Message>
 
@@ -157,6 +167,7 @@ Example 3 - Whisper message (ONLY visible to speaker and target):
 <SpeakingTo>Sarah</SpeakingTo>
 <Artifacts>
 </Artifacts>
+<PrivateThoughts>Your critical private detailed thoughts before you speak. Here you can speak your opinions about others and prepare your argument. Others can see these so be as critical as you want.</PrivateThoughts>
 <Content>I don't think John's numbers are accurate.</Content>
 <Whisper>true</Whisper>
 </Message>
