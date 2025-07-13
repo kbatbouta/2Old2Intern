@@ -137,7 +137,27 @@ def filter_messages_for_agent(self, messages: List[Message], target_agent: str) 
 - Whispers containing strategic keywords have higher response probability
 - Private information sharing creates natural conversation threading
 - Agents remember whisper context across multiple exchanges
+### Tick-Based Plugin System (Watchers)
 
+**Real-Time Monitoring & Intervention:**
+The framework includes a powerful plugin architecture for monitoring conversation state and automatically intervening when needed.
+
+```python
+class DebateWatcher(abc.ABC):
+   """Tick-based conversation plugins that run on every turn"""
+   @abc.abstractmethod
+   def __call__(self, current_speaker, orchestrator_api: AgentOrchestratorAPI):
+       pass
+
+# Inject message when specific conditions are met
+reminder = ScheduledMessage(
+   "⏰ Five minutes remaining for this phase",
+   lambda speaker, api: api.debate_messages_count() > 15
+)
+
+# Add to orchestrator
+orchestrator.watchers.append(reminder) # or pass it to the constructor
+```
 
 ## 🎛️ Configuration & Customization
 

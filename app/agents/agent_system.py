@@ -576,6 +576,9 @@ class AgentOrchestratorAPI:
         for message in self._orchestrator.messages:
             yield message
 
+    def debate_messages_count(self) -> int:
+        return self._orchestrator.message_count
+
     def goals(self) -> Iterator[Goal]:
         """(read-only) goal list from the orchestrator."""
         for goal in self._orchestrator.goals:
@@ -586,7 +589,7 @@ class AgentOrchestratorAPI:
         for name, agent in self._orchestrator.agents.items():
             yield name, agent
 
-    def inject_message(self, content: str, insert_at: Optional[int] = None,
+    def inject_message(self, content: str, speaker: str = "coordinator", insert_at: Optional[int] = None,
                        increment_count: bool = True):
         """Inject a message into the debate. Appends by default, but can insert at specific position."""
         valid_speakers = ["coordinator"] + list(self._orchestrator.agents.keys())
