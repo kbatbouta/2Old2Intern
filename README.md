@@ -71,11 +71,10 @@ Every agent communication follows strict XML-like scaffolding:
 <SpeakingTo>target_agent</SpeakingTo>  <!-- Optional -->
 <Whisper>true</Whisper>               <!-- For private messages -->
 <Artifacts></Artifacts>
-<Content>
-  <PrivateThoughts speaker="agent_name">
-    Internal cognitive process and strategic planning
-  </PrivateThoughts>
-  
+<PrivateThoughts speaker="agent_name">
+  Internal cognitive process and strategic planning
+</PrivateThoughts>
+<Content>  
   The actual message content visible to intended recipients
 </Content>
 </Message>
@@ -124,13 +123,6 @@ def filter_messages_for_agent(self, messages: List[Message], target_agent: str) 
 - Private information sharing creates natural conversation threading
 - Agents remember whisper context across multiple exchanges
 
-**Alliance Formation Patterns:**
-```python
-# Common whisper patterns that trigger responses:
-alliance_keywords = ['alliance', 'coordinate', 'strategy', 'together', 'confidential']
-information_sharing = ['between you and me', 'privately', 'insider information']
-strategic_planning = ['build a case', 'unified front', 'coordinate our approach']
-```
 
 ## 🎛️ Configuration & Customization
 
