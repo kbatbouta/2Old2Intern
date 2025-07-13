@@ -49,9 +49,9 @@ class Message(object):
                 f"</Message>")
 
     @staticmethod
-    def make(content, speaker, artifacts=None, speaking_to=None, is_whisper=False):
+    def make(content, speaker, artifacts=None, speaking_to=None, is_whisper=False, thoughts=None):
         return Message(str(uuid.uuid4()), content, speaker, str(datetime.datetime.now()),
-                       artifacts if artifacts else [], speaking_to, is_whisper)
+                       artifacts if artifacts else [], speaking_to, is_whisper, thoughts)
 
     @staticmethod
     def parse_from_response(response_text: str) -> 'Message':

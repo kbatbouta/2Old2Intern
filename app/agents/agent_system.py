@@ -1,9 +1,10 @@
+import abc
 import random
 import time
 import traceback
 
 import regex
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Tuple, Any, Iterator, Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from abc import ABC, abstractmethod
@@ -69,6 +70,90 @@ class AgentState:
     custom_data: Dict[str, Any] = field(default_factory=dict)
 
 
+class AgentOrchestrator:
+    pass
+
+
+class AgentOrchestratorAPI:
+    pass
+
+
+class DebateWatcher(abc.ABC):
+    """
+    Abstract base class for tick-based conversation plugins.
+
+    DebateWatcher defines the interface for plugins that monitor and potentially
+    intervene in ongoing conversations. Watchers are called on every conversation
+    turn (tick), allowing them to observe state changes and react accordingly.
+
+    Watchers operate as independent plugins that can:
+    - Monitor conversation progress and participant behavior
+    - Inject messages or annotations at appropriate times
+    - Track goals, coalitions, or other conversation dynamics
+    - Enforce rules or format requirements
+    - Provide automated moderation or facilitation
+
+    The tick-based design allows multiple watchers to operate simultaneously
+    without interfering with each other or the core conversation flow.
+
+    Args:
+        current_speaker: The name of the agent currently speaking
+        orchestrator_api: Read-only interface to conversation state and injection capabilities
+
+    Example:
+        >>> class GoalTracker(DebateWatcher):
+        ...     def __call__(self, current_speaker, orchestrator_api):
+        ...         if self.detect_goal_achievement(orchestrator_api):
+        ...             orchestrator_api.inject_message("🎯 Goal achieved!")
+    """
+    @abc.abstractmethod
+    def __call__(self, current_speaker, orchestrator_api: AgentOrchestratorAPI):
+        pass
+
+
+class ScheduledMessage(DebateWatcher):
+    """
+    A tick-based plugin that injects a message when specified conditions are met.
+
+    ScheduledMessage acts as a one-shot intervention that monitors conversation state
+    on every turn (tick) and injects a predefined message when its trigger condition
+    becomes true. After triggering once, it becomes inactive for the remainder of
+    the conversation.
+
+    Args:
+        message_content: The message text to inject when triggered
+        trigger: A callable that receives (current_speaker, orchestrator_api) and
+                returns True when the message should be injected
+        speaker: The speaker name for the injected message (default: "coordinator")
+
+    Example:
+        >>> def after_10_messages(speaker, api):
+        ...     return len(list(api.messages())) >= 10
+        >>>
+        >>> reminder = ScheduledMessage(
+        ...     "Time to wrap up the discussion!",
+        ...     after_10_messages
+        ... )
+        >>> orchestrator.watchers.append(reminder)
+
+    Note:
+        The trigger function is evaluated on every conversation turn. For expensive
+        operations, consider caching or state tracking within the trigger itself.
+    """
+    def __init__(self, message_content: str, trigger: Callable[[str, AgentOrchestratorAPI], bool], speaker: str = "coordinator"):
+        self.speaker = speaker
+        self.message_content = message_content
+        self.trigger = trigger
+        self._finished = False
+
+    def __call__(self, current_speaker, orchestrator_api: AgentOrchestratorAPI):
+        if self._finished:
+            return
+        if self.trigger(current_speaker, orchestrator_api):
+            self._finished = True
+            orchestrator_api.inject_message(self.message_content, self.speaker)
+
+
 class CoordinatorConfig:
     """Configuration for Coordinator behavior."""
 
@@ -90,13 +175,15 @@ class AgentOrchestrator:
                  context_content: str,
                  coordinator_config: CoordinatorConfig = None,
                  validity_checkers: List[ValidityChecker] = None,
-                 goals: List[Goal] = None):
+                 goals: List[Goal] = None,
+                 watchers: List[DebateWatcher] = None):
         self.llm = llm
         self.messages: List[Message] = []
         self.conversation_topic = conversation_topic
         self.context_content = context_content
         self.coordinator_config = coordinator_config or CoordinatorConfig()
         self.validity_checkers = validity_checkers or []
+        self.watchers = watchers or []
         self.goals = goals or []
 
         self.conversation_active = True
@@ -373,6 +460,11 @@ Please ensure proper formatting in responses."""
                     self.conversation_active = False
                     break
 
+                api = AgentOrchestratorAPI(self)
+                for watcher in self.watchers:
+                    # calls the watchers one at a time
+                    watcher(current_speaker, api)
+
                 # Get messages with system prompt
                 messages_with_system = self.add_system_message(current_speaker)
 
@@ -473,3 +565,40 @@ Please ensure proper formatting in responses."""
         """Update agent state with custom fields. Override for domain-specific behavior."""
         agent_state = self.agents[agent_name.lower()]
         agent_state.custom_data.update(custom_fields)
+
+
+class AgentOrchestratorAPI:
+    def __init__(self,  orchestrator: AgentOrchestrator):
+        self._orchestrator = orchestrator
+
+    def messages(self) -> Iterator[Message]:
+        """(read-only) message list from the orchestrator."""
+        for message in self._orchestrator.messages:
+            yield message
+
+    def goals(self) -> Iterator[Goal]:
+        """(read-only) goal list from the orchestrator."""
+        for goal in self._orchestrator.goals:
+            yield goal
+
+    def agents(self) -> Iterator[Tuple[str, AgentState]]:
+        """(read-only) goal list from the orchestrator."""
+        for name, agent in self._orchestrator.agents.items():
+            yield name, agent
+
+    def inject_message(self, content: str, insert_at: Optional[int] = None,
+                       increment_count: bool = True):
+        """Inject a message into the debate. Appends by default, but can insert at specific position."""
+        valid_speakers = ["coordinator"] + list(self._orchestrator.agents.keys())
+        assert speaker in valid_speakers, f"Invalid speaker: {speaker}"
+
+        message = Message.make(speaker, content)
+
+        if insert_at is None:
+            self._orchestrator.messages.append(message)
+        else:
+            self._orchestrator.messages.insert(insert_at, message)
+
+        if increment_count:
+            self._orchestrator.message_count += 1
+

@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass, field
 from agents.agent_system import (
     AgentOrchestrator, ValidityChecker, RejectionResult,
-    Persona, Goal, AgentType, CoordinatorConfig
+    Persona, Goal, AgentType, CoordinatorConfig, DebateWatcher
 )
 from models.base import BaseModel
 
@@ -155,7 +155,8 @@ class ChainOfDebate(AgentOrchestrator):
                  verdict_config: VerdictConfig,
                  goals: List[Goal] = None,
                  timekeeper_config: DebateTimeKeeperConfig = None,
-                 custom_validity_checkers: List[ValidityChecker] = None):
+                 custom_validity_checkers: List[ValidityChecker] = None,
+                 watchers: List[DebateWatcher] = None):
 
         # Setup default validity checkers
         default_checkers = [
@@ -182,7 +183,8 @@ class ChainOfDebate(AgentOrchestrator):
             context_content=context_content,
             coordinator_config=self.timekeeper_config,
             validity_checkers=all_checkers,
-            goals=[]  # Clear goals from parent class since we handle them differently
+            goals=[],  # Clear goals from parent class since we handle them differently
+            watchers=watchers,
         )
 
         # Override coordinator persona for debate context
