@@ -6,17 +6,32 @@
 
 This isn't just another chatbot system - it's a **flexible debate engine** that can handle any complex evaluation or decision-making scenario. Whether you're evaluating job candidates, research proposals, investment opportunities, policy decisions, medical diagnoses, or creative projects, this framework provides the infrastructure for multi-expert analysis.
 
-**The core insight:** Complex decisions benefit from **multiple expert perspectives** examining the problem from different angles. The system orchestrates structured conversations where each AI agent maintains their own expertise, personality, and memory while participating in group decision-making processes.
+### Core Interactive Capabilities
+  1. **💭 Hold private thoughts** (like internal strategy) - Each agent maintains hidden reasoning that informs their public positions without revealing tactical considerations
+  2. **🤫 Whisper secret messages** to each other (forming alliances) - Private bilateral communication channels enable realistic coalition building and information sharing
+  3. **🔄 Engage in sticky back-and-forth private chats** that shape the outcome - Persistent whisper threads allow for complex multi-turn negotiations that influence public debate
+  4. **🏛️ Debate publicly in structured phases** — just like real committees, with formal position-taking and reasoned discourse
+
+### Progressive Goal Management System
+  1. **🎯 Dynamic phase transitions** triggered by participant withdrawal patterns rather than arbitrary timelines
+  2. **📈 Natural completion detection** - when enough agents withdraw from a goal, the system recognizes deliberation has reached diminishing returns
+  3. **🔄 Adaptive progression** through structured phases (e.g., economic analysis → political feasibility → final recommendations)
+  4. **⚡ Prevents endless circular debate** by using organic stopping points based on participant behavior
+
+### Timekeeper Anti-Drift Architecture
+  1. **📋 Structural enforcement** of verdict scaffolding to ensure comparable, analyzable outputs
+  2. **🎯 Progress tracking** that monitors participation and prevents agents from avoiding commitment
+  3. **⚠️ Drift prevention** through constant orientation reminders and goal clarity
+  4. **🔴 Escalating alerts** when discussions veer off-track or participants fail to engage with current objectives
+  5. **📊 Real-time coordination** ensuring all voices are heard before phase transitions
+
+### System Intelligence Features
+  1. **🤝 Coalition detection** that automatically identifies and tracks alliance formation
+  2. **📈 Emergent narrative generation** where authentic political dynamics arise from agent interactions
+  3. **⚖️ Balanced participation** management preventing any single voice from dominating
+  4. **🎭 Consistent character maintenance** across extended multi-phase deliberations
 
 ## 🧠 Advanced Cognitive Features
-
-### Three-Layer Communication System
-
-The framework implements a sophisticated **three-tier information visibility model**:
-
-1. **🌐 Public Messages** - Visible to all participants
-2. **🤫 Whisper Messages** - Private communications between specific agents
-3. **🧠 Private Thoughts** - Internal cognitive process visible only to the generating agent
 
 ### Private Thoughts Architecture
 
