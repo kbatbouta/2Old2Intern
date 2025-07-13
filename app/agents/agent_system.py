@@ -372,6 +372,8 @@ Please ensure proper formatting in responses."""
 
         print(f"\n[{self.message_count}] {persona.name.upper()} ({persona.title}){speaking_to_str}:")
         print(f"(is_whisper={message.is_whisper})")
+        if message.gossip:
+            print(f"\n<Gossip speaker=\"{message.speaker}\">{message.gossip}</Gossip>\n")
         print(f"    {message.content}")
 
         # Print custom fields if any
@@ -401,6 +403,8 @@ Please ensure proper formatting in responses."""
 
         result = f"\n[{self.message_count}] {persona.name.upper()} ({persona.title}){speaking_to_str}:\n"
         result += f"(is_whisper={message.is_whisper})\n"
+        if message.gossip:
+            result += f"\n<Gossip speaker=\"{message.speaker}\">{message.thoughts}</Gossip>\n\n"
         result += f"    {message.content}\n"
 
         # Add custom fields if any
