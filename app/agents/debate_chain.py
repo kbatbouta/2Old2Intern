@@ -530,6 +530,45 @@ Remember: The TimeKeeper's/Coordinator's cannot speak and they are part of the s
 
         print(f"    (timestamp: {message.timestamp})")
 
+    def format_message_as_string(self, message, custom_fields: Dict[str, Any], achieved_goals: List[str]) -> str:
+        """Format a message as a string for logging purposes."""
+        agent_state = self.agents[message.speaker.lower()]
+        persona = agent_state.persona
+
+        # Different formatting for TimeKeeper
+        if persona.agent_type == AgentType.COORDINATOR:
+            urgency = self.get_timekeeper_urgency_level()
+            urgency_indicator = {"remind": "📋", "insist": "🟡", "demand": "🔴", "force": "⚠️"}[urgency]
+            result = f"\n[{self.message_count}] {urgency_indicator} {persona.name.upper()} → [All]:\n"
+            result += f"    {message.content}\n"
+            return result
+
+        speaking_to_str = f" → {message.speaking_to}" if message.speaking_to else " → [All]"
+        status_indicators = []
+
+        verdict = custom_fields.get('verdict')
+        reasoning = custom_fields.get('reasoning')
+        withdrawn = custom_fields.get('withdrawn', False)
+
+        if verdict:
+            status_indicators.append(f"VERDICT: {verdict}")
+        if withdrawn:
+            status_indicators.append("WITHDRAWN")
+
+        status_str = f" [{', '.join(status_indicators)}]" if status_indicators else ""
+
+        result = f"\n[{self.message_count}] {persona.name.upper()} ({persona.title}){speaking_to_str}{status_str}:\n"
+        result += f"(is_whisper={message.is_whisper})\n"
+        result += f"\n<PrivateThoughts speaker=\"{message.speaker}\">{message.thoughts}</PrivateThoughts>\n\n"
+        result += f"    {message.content}\n"
+
+        if reasoning:
+            result += f"    💭 Reasoning: {reasoning}\n"
+
+        result += f"    (timestamp: {message.timestamp})\n"
+
+        return result
+
     def print_final_results(self):
         """Print final verdicts and goal achievements."""
         print("\n" + "=" * 70)

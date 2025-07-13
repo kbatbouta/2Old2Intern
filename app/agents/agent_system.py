@@ -381,6 +381,37 @@ Please ensure proper formatting in responses."""
 
         print(f"    (timestamp: {message.timestamp})")
 
+    def format_message_as_string(self, message: Message, custom_fields: Dict[str, Any],
+                                 achieved_goals: List[str]) -> str:
+        """Format a message as a string for logging purposes."""
+        agent_state = self.agents[message.speaker.lower()]
+        persona = agent_state.persona
+
+        # Different formatting for Coordinator
+        if persona.agent_type == AgentType.COORDINATOR:
+            urgency = self.get_coordinator_urgency_level()
+            urgency_indicator = {"normal": "📋", "elevated": "🟡", "urgent": "🔴", "critical": "⚠️"}[urgency]
+            result = f"\n[{self.message_count}] {urgency_indicator} {persona.name.upper()} → [All]:\n"
+            result += f"    {message.content}\n"
+            if achieved_goals:
+                result += f"    🎯 Goals marked achieved: {', '.join(achieved_goals)}\n"
+            return result
+
+        speaking_to_str = f" → {message.speaking_to}" if message.speaking_to else " → [All]"
+
+        result = f"\n[{self.message_count}] {persona.name.upper()} ({persona.title}){speaking_to_str}:\n"
+        result += f"(is_whisper={message.is_whisper})\n"
+        result += f"    {message.content}\n"
+
+        # Add custom fields if any
+        if custom_fields:
+            for key, value in custom_fields.items():
+                result += f"    {key}: {value}\n"
+
+        result += f"    (timestamp: {message.timestamp})\n"
+
+        return result
+
     def print_final_results(self):
         """Print final results. Override for custom output."""
         print("\n" + "=" * 70)
