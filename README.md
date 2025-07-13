@@ -4,34 +4,69 @@
 
 ## 🎯 What This Is
 
-This isn't just another chatbot system - it's a **flexible debate engine** that can handle any complex evaluation or decision-making scenario. Whether you're evaluating job candidates, research proposals, investment opportunities, policy decisions, medical diagnoses, or creative projects, this framework provides the infrastructure for multi-expert analysis.
-
+This isn't just another chatbot system - it's a composable **flexible debate engine** that can handle any complex evaluation or decision-making scenario. Whether you're evaluating job candidates, research proposals, investment opportunities, policy decisions, medical diagnoses, or creative projects, this framework provides the infrastructure for multi-expert analysis.
 ### Core Interactive Capabilities
-  1. **💭 Hold private thoughts** (like internal strategy) - Each agent maintains hidden reasoning that informs their public positions without revealing tactical considerations
-  2. **🤫 Whisper secret messages** to each other (forming alliances) - Private bilateral communication channels enable realistic coalition building and information sharing
-  3. **🔄 Engage in sticky back-and-forth private chats** that shape the outcome - Persistent whisper threads allow for complex multi-turn negotiations that influence public debate
-  4. **🏛️ Debate publicly in structured phases** — just like real committees, with formal position-taking and reasoned discourse
+ 1. **💭 Hold private thoughts** (like internal strategy) - Each agent maintains hidden reasoning that informs their public positions without revealing tactical considerations
+ 2. **🤫 Whisper secret messages** to each other (forming alliances) - Private bilateral communication channels enable realistic coalition building and information sharing
+ 3. **🔄 Engage in sticky back-and-forth private chats** that shape the outcome - Persistent whisper threads allow for complex multi-turn negotiations that influence public debate
+ 4. **🏛️ Debate publicly in structured phases** — just like real committees, with formal position-taking and reasoned discourse
+ 5. **🔗 Create recursive meta-debates** - Debates can moderate other debates with infinite oversight depth for self-governing AI democracy
 
 ### Progressive Goal Management System
-  1. **🎯 Dynamic phase transitions** triggered by participant withdrawal patterns rather than arbitrary timelines
-  2. **📈 Natural completion detection** - when enough agents withdraw from a goal, the system recognizes deliberation has reached diminishing returns
-  3. **🔄 Adaptive progression** through structured phases (e.g., economic analysis → political feasibility → final recommendations)
-  4. **⚡ Prevents endless circular debate** by using organic stopping points based on participant behavior
+ 1. **🎯 Dynamic phase transitions** triggered by participant withdrawal patterns rather than arbitrary timelines
+ 2. **📈 Natural completion detection** - when enough agents withdraw from a goal, the system recognizes deliberation has reached diminishing returns
+ 3. **🔄 Adaptive progression** through structured phases (e.g., economic analysis → political feasibility → final recommendations)
+ 4. **⚡ Prevents endless circular debate** by using organic stopping points based on participant behavior
 
 ### Timekeeper Anti-Drift Architecture
-  1. **📋 Structural enforcement** of verdict scaffolding to ensure comparable, analyzable outputs
-  2. **🎯 Progress tracking** that monitors participation and prevents agents from avoiding commitment
-  3. **⚠️ Drift prevention** through constant orientation reminders and goal clarity
-  4. **🔴 Escalating alerts** when discussions veer off-track or participants fail to engage with current objectives
-  5. **📊 Real-time coordination** ensuring all voices are heard before phase transitions
+ 1. **📋 Structural enforcement** of verdict scaffolding to ensure comparable, analyzable outputs
+ 2. **🎯 Progress tracking** that monitors participation and prevents agents from avoiding commitment
+ 3. **⚠️ Drift prevention** through constant orientation reminders and goal clarity
+ 4. **🔴 Escalating alerts** when discussions veer off-track or participants fail to engage with current objectives
+ 5. **📊 Real-time coordination** ensuring all voices are heard before phase transitions
 
 ### System Intelligence Features
-  1. **🤝 Coalition detection** that automatically identifies and tracks alliance formation
-  2. **📈 Emergent narrative generation** where authentic political dynamics arise from agent interactions
-  3. **⚖️ Balanced participation** management preventing any single voice from dominating
-  4. **🎭 Consistent character maintenance** across extended multi-phase deliberations
+ 1. **🤝 Coalition detection** that automatically identifies and tracks alliance formation
+ 2. **📈 Emergent narrative generation** where authentic political dynamics arise from agent interactions
+ 3. **⚖️ Balanced participation** management preventing any single voice from dominating
+ 4. **🎭 Consistent character maintenance** across extended multi-phase deliberations
+ 5. **🔧 Tick-based plugin composability** - Modular watcher system enables unlimited extensibility and custom intervention strategies
+
+### Recursive Meta-Governance Architecture
+ 1. **🏛️ Democratic AI oversight** - AI systems democratically govern other AI systems through structured debate
+ 2. **🔄 Self-correcting intelligence** - Higher-level debates identify and correct biases or procedural errors in lower-level discussions
+ 3. **⚖️ Configurable intervention depth** - From quick oversight (1-2 messages) to comprehensive analysis (10+ messages)
+ 4. **🧠 Emergent quality assurance** - Meta-debates catch subtle issues that neither humans nor single AIs would detect
+ 5. **∞ Infinite recursion capability** - Debates watching debates watching debates with no theoretical limit
 
 ## 🧠 Advanced Cognitive Features
+
+### Recursive Meta-Governance System
+
+**Meta-Debate Chains:**
+The most advanced feature of the framework is its ability to create **debates that moderate other debates** through recursive meta-governance. This enables unprecedented oversight and quality control.
+
+```python
+# Primary debate evaluating a job candidate
+primary_debate = ChainOfDebate(topic="Should we hire this AI researcher?")
+
+# Meta-debate watching the primary debate for bias or derailment  
+meta_watcher = ModerationWatcher(
+    llm=llm,
+    moderation_criteria="Are evaluators avoiding bias? Staying on topic?",
+    length_multiplier=2.0,  # Quick 2-4 message oversight
+    check_interval=5        # Review every 5 messages
+)
+
+# Meta-meta-debate watching the meta-debate for over-correction
+meta_meta_watcher = ModerationWatcher(
+    llm=llm, 
+    moderation_criteria="Are moderators being too harsh? Too lenient?",
+    length_multiplier=1.5,
+    meta_watchers=[meta_watcher]  # Infinite recursion possible
+)
+
+primary_debate.watchers.append(meta_meta_watcher)
 
 ### Private Thoughts Architecture
 
@@ -137,6 +172,7 @@ def filter_messages_for_agent(self, messages: List[Message], target_agent: str) 
 - Whispers containing strategic keywords have higher response probability
 - Private information sharing creates natural conversation threading
 - Agents remember whisper context across multiple exchanges
+
 ### Tick-Based Plugin System (Watchers)
 
 **Real-Time Monitoring & Intervention:**
