@@ -2,6 +2,14 @@
 
 **[WIP - Evolving Architecture]** A powerful, general-purpose multi-agent orchestration system that enables AI experts to engage in structured debates through sequential goal progression, with advanced features like whisper communications and automated moderation.
 
+**Example of private thoughts**
+
+> Julia has withdrawn already, which is surprising. She's made strong technical arguments but I think she's missing the depth of flavor that comes from the tomato-guanciale marriage. I need to counter her "immediate gratification" argument with the reality that great taste isn't just about instant pleasure - it's about complexity and satisfaction that builds. The coordinator keeps pushing us toward pure taste, so I must focus on the actual sensory experience of eating Amatriciana.</PrivateThoughts>
+
+**Example of private predictions**
+
+> Julia withdrawing early suggests she's confident in her position but doesn't want to engage further. The Governor supports carbonara with similar arguments about umami intensity. The Senator is on my side but got caught up in cultural arguments. I need to make the sensory case for Amatriciana more compelling. The Divine Creator went with carbonara too, so I'm outnumbered. Need to focus on what makes Amatriciana's taste experience genuinely superior.
+
 ## 🎯 What This Is
 
 This isn't just another chatbot system - it's a composable **flexible debate engine** that can handle any complex evaluation or decision-making scenario. Whether you're evaluating job candidates, research proposals, investment opportunities, policy decisions, medical diagnoses, or creative projects, this framework provides the infrastructure for multi-expert analysis.
