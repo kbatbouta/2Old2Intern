@@ -438,8 +438,7 @@ Please ensure proper formatting in responses."""
         print("=" * 70)
 
         # Start with a random participant
-        current_speaker = random.choice([name for name, state in self.agents.items()
-                                         if state.persona.agent_type == AgentType.PARTICIPANT])
+        current_speaker = "coordinator"
 
         while self.conversation_active and self.message_count < self.max_messages:
             try:
