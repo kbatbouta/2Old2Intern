@@ -16,7 +16,7 @@ class Artifact(abc.ABC):
 
 class Message(object):
     def __init__(self, id: str, content: str, speaker: str, timestamp: str, artifacts: List[Artifact],
-                 speaking_to: Optional[str] = None, is_whisper: bool = False, thoughts: str = None, gossip: str = None):
+                 speaking_to: Optional[str] = None, is_whisper: bool = False, thoughts: str = None, private_predictions: str = None):
         self.id = id
         self.content = content
         self.speaker = speaker
@@ -25,7 +25,7 @@ class Message(object):
         self.speaking_to = speaking_to
         self.is_whisper = is_whisper
         self.thoughts = thoughts
-        self.gossip = gossip
+        self.private_predictions = private_predictions
 
     def to_prompt(self, speaker=None, **kwargs) -> str:
         artifacts_section = "\n".join([f"<li id=\"{a.id}\" type=\"{a.arch_type}\">" + a.to_prompt() + "</li>"
@@ -36,10 +36,10 @@ class Message(object):
         whisper_section = f"<Whisper>true</Whisper>\n" if self.is_whisper else "<Whisper>False</Whisper>"
         if self.speaker == speaker:
             thoughts_section = f"<PrivateThoughts>{self.thoughts}</PrivateThoughts>\n" if self.thoughts else "<PrivateThoughts></PrivateThoughts>\n"
-            gossip_section = f"<Gossip>{self.gossip}</Gossip>\n" if self.gossip else "<Gossip></Gossip>\n"
+            private_predictions_section = f"<PrivatePredictions>{self.private_predictions}</PrivatePredictions>\n" if self.private_predictions else "<PrivatePredictions></PrivatePredictions>\n"
         else:
             thoughts_section = ""
-            gossip_section = ""
+            private_predictions_section = ""
         return (f"<Message id=\"{self.id}\" timestamp=\"{self.timestamp}\">\n"
                 f"<Speaker>{self.speaker}</Speaker>\n"
                 f"{speaking_to_section}"
@@ -48,7 +48,7 @@ class Message(object):
                 f"{artifacts_section}\n"
                 f"</Artifacts>\n"
                 f"{thoughts_section}"
-                f"{gossip_section}"
+                f"{private_predictions_section}"
                 f"<Content>{self.content}</Content>\n"
                 f"</Message>")
 
@@ -97,13 +97,13 @@ class Message(object):
         thoughts_match = re.search(r'<PrivateThoughts>(.*?)</PrivateThoughts>', response_text, re.DOTALL)
         thoughts = thoughts_match.group(1).strip() if thoughts_match else ""
 
-        gossip_match = re.search(r'<Gossip>(.*?)</Gossip>', response_text, re.DOTALL)
-        gossip = gossip_match.group(1).strip() if gossip_match else ""
+        private_predictions_match = re.search(r'<PrivatePredictions>(.*?)</PrivatePredictions>', response_text, re.DOTALL)
+        private_predictions = private_predictions_match.group(1).strip() if private_predictions_match else ""
 
         # For now, artifacts parsing is simplified - you'd need to implement based on your Artifact classes
         artifacts = []
 
-        return Message(msg_id, content, speaker, timestamp, artifacts, speaking_to, is_whisper, thoughts, gossip)
+        return Message(msg_id, content, speaker, timestamp, artifacts, speaking_to, is_whisper, thoughts, private_predictions)
 
     def can_be_seen_by(self, speaker: str) -> bool:
         """
@@ -155,7 +155,7 @@ Example 1 - Regular message (visible to everyone):
 <Artifacts>
 </Artifacts>
 <PrivateThoughts>Your critical private detailed thoughts before you speak. Here you can speak your opinions about others and prepare your argument. Others can see these so be as critical as you want.</PrivateThoughts>
-<Gossip>(optional) Spill the nastiest tea you’ve got — this is your unfiltered, foul-mouthed hot take zone. Trash their personality, mock their quirks, exaggerate their drama. Be as vulgar, petty, and scandal-hungry as you want. No holding back. It's private, so go *full venom*.</Gossip>
+<PrivatePredictions>Your confidential analysis of participant behavior and strategic positioning. Evaluate their true intentions, assess coalition potential, predict their next moves, and track how the group dynamics are shifting. Include your honest judgments about their effectiveness, credibility, and likely influence on the outcome. This behavioral intelligence remains completely private to you.</PrivatePredictions>
 <Content>I think we should consider the technical implications here.</Content>
 </Message>
 
@@ -166,7 +166,7 @@ Example 2 - Message with speaking target (visible to everyone):
 <Artifacts>
 </Artifacts>
 <PrivateThoughts>Your completely private internal thoughts that ONLY YOU can see. Think through your strategy, assess other participants, plan your arguments, and express your honest opinions without any filter. These thoughts are invisible to all other agents and will never be shared.</PrivateThoughts>
-<Gossip>(optional) Let off some steam — this is your private venting space. Express any frustrations, annoyances, or honest reactions you're having about the discussion or other participants. Be as blunt, sarcastic, or exasperated as you feel. Say what you're really thinking without the professional filter. This stays private.</Gossip>
+<PrivatePredictions>Your private assessment and predictions about other participants' motivations, likely reactions, and evolving dynamics. Analyze their behavior patterns, strategic moves, and how your opinion of them is changing based on their contributions. This predictive modeling stays completely private.</PrivatePredictions>
 <Content>John, what's your take on the performance metrics?</Content>
 </Message>
 
@@ -176,7 +176,8 @@ Example 3 - Whisper message (ONLY visible to speaker and target):
 <SpeakingTo>Sarah</SpeakingTo>
 <Artifacts>
 </Artifacts>
-<PrivateThoughts>Your critical private detailed thoughts before you speak. Here you can speak your opinions about others and prepare your argument. Others can see these so be as critical as you want.</PrivateThoughts>
+<PrivateThoughts>Your completely private internal deliberation that only you can see. Think through your position, plan your response, and assess the situation honestly. You can express frustrations or concerns about other participants, but focus primarily on developing your strategy and reasoning. These thoughts are invisible to all other agents and help you prepare your next move.</PrivateThoughts>
+<PrivatePredictions>Your internal risk assessment and behavioral forecast for each participant. Evaluate their hidden agendas, decision-making patterns, and potential pivot points. Predict how they might respond to pressure, what would make them change positions, and who they're most likely to align with. This strategic intelligence and psychological profiling remains entirely confidential.</PrivatePredictions>
 <Content>I don't think John's numbers are accurate.</Content>
 <Whisper>true</Whisper>
 </Message>
@@ -187,7 +188,7 @@ IMPORTANT: Whisper messages with <Whisper>true</Whisper> are PRIVATE and can onl
 
 All other participants will NOT see whisper messages. Use whispers for private communications.
 
-Remember you can whisper to others, and you should - but not too often, also gossip is optional and is private.
+Remember you can whisper to others, and you should - but not too often, also private_predictions is optional and is private.
 
 Always use this exact scaffolding format in your responses.
 """

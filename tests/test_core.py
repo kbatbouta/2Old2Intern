@@ -237,7 +237,7 @@ class TestWhisperMechanics:
                 speaking_style="Clear and public communication, rarely whispers unless absolutely necessary"
             ),
             Persona(
-                name="Marcus Gossip",
+                name="Marcus PrivatePredictions",
                 title="HR Security Specialist",
                 expertise="Background verification and workplace security",
                 personality="Secretive and paranoid, loves sharing rumors and confidential information through whispers",
@@ -276,7 +276,7 @@ class TestWhisperMechanics:
 
             # Marcus's whisper to Jane
             """<Message id="msg-002" timestamp="2024-01-15T10:31:00">
-<Speaker>marcus gossip</Speaker>
+<Speaker>marcus private_predictions</Speaker>
 <SpeakingTo>prof. jane balance</SpeakingTo>
 <Whisper>true</Whisper>
 <Content>Jane, I've heard concerning rumors about the DeepMind departure. Very unusual circumstances.</Content>
@@ -288,7 +288,7 @@ class TestWhisperMechanics:
             # Jane's whisper back to Marcus
             """<Message id="msg-003" timestamp="2024-01-15T10:32:00">
 <Speaker>prof. jane balance</Speaker>
-<SpeakingTo>marcus gossip</SpeakingTo>
+<SpeakingTo>marcus private_predictions</SpeakingTo>
 <Whisper>true</Whisper>
 <Content>Thanks Marcus. The reference situation is also troubling. We should be cautious.</Content>
 <Verdict></Verdict>
@@ -298,7 +298,7 @@ class TestWhisperMechanics:
 
             # Final verdicts
             """<Message id="msg-004" timestamp="2024-01-15T10:33:00">
-<Speaker>marcus gossip</Speaker>
+<Speaker>marcus private_predictions</Speaker>
 <Content>Based on my security assessment, I have concerns about this candidate.</Content>
 <Verdict>POOR_FIT</Verdict>
 <VerdictReasoning>Multiple red flags in background check and reference issues</VerdictReasoning>
@@ -367,7 +367,7 @@ class TestWhisperMechanics:
 
         # Verify whispers were detected
         assert whisper_stats['total_whispers'] > 0, "No whispers detected in test"
-        assert 'marcus gossip' in whisper_stats['whispers_by_agent'], "Marcus should use whispers"
+        assert 'marcus private_predictions' in whisper_stats['whispers_by_agent'], "Marcus should use whispers"
         assert len(whisper_stats['whisper_targets']) > 0, "Should have whisper targets"
 
         # Verify conversation completed
