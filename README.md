@@ -68,7 +68,7 @@ meta_meta_watcher = ModerationWatcher(
 )
 
 primary_debate.watchers.append(meta_meta_watcher)
-
+```
 ### Private Thoughts Architecture
 
 Each agent generates internal thoughts that simulate realistic cognitive processes:
