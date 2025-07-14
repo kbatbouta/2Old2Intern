@@ -526,7 +526,7 @@ Remember: The TimeKeeper's/Coordinator's cannot speak and they are part of the s
         print(f"(is_whisper={message.is_whisper})")
         print(f"\n      💭 Thoughts: {message.thoughts}\n")
         if message.private_predictions:
-            print(f"\n      💭 Strategy {message.private_predictions}\n")
+            print(f"\n      💭 Strategy: {message.private_predictions}\n")
         print(f"    {message.content}")
 
         if reasoning:
