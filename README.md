@@ -50,7 +50,7 @@ This isn't just another chatbot system - it's a composable **flexible debate eng
 4. **🧠 Emergent quality assurance** - Meta-debates catch subtle issues that neither humans nor single AIs would detect through collaborative evaluation
 5. **∞ Infinite recursion capability** - Debates watching debates watching debates with no theoretical limit and fail-safe majority consensus requirements
 6. **⚖️ Majority consensus enforcement** - Interventions only occur when meta-debate participants reach democratic agreement, with automatic fallback to non-interference
-7. **⚡ Real-time self-governance** - System automatically spawns meta-moderation debates when quality issues are detected, with democratic voting determining interventions without human oversight
+7. **⚡ Real-time self-governance** - System spawns meta-moderation debates, with democratic voting determining interventions without human oversight
 
 ## 🧠 Advanced Cognitive Features
 
