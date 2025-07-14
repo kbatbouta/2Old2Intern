@@ -42,7 +42,7 @@ This isn't just another chatbot system - it's a composable **flexible debate eng
 3. **⚖️ Balanced participation** management preventing any single voice from dominating
 4. **🎭 Consistent character maintenance** across extended multi-phase deliberations
 5. **🔧 Tick-based plugin composability** - Modular watcher system enables unlimited extensibility and custom intervention strategies
-6. **🧵 Relationship persistence** - DNA stickness system maintains private communication threads and relationship continuity across debate phases
+6. **🧵 Relationship persistence** - Stickness system maintains private communication threads and relationship continuity across debate phases
 
 ### Recursive Meta-Governance Architecture
 1. **🏛️ Democratic AI oversight** - AI systems democratically govern other AI systems through structured debate with majority voting requirements
