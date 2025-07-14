@@ -36,21 +36,19 @@ This isn't just another chatbot system - it's a composable **flexible debate eng
 5. **📊 Real-time coordination** ensuring all voices are heard before phase transitions
 
 ### System Intelligence Features
-1. **🤝 Coalition detection** that automatically identifies and tracks alliance formation
-2. **📈 Emergent narrative generation** where authentic political dynamics arise from agent interactions
-3. **⚖️ Balanced participation** management preventing any single voice from dominating
-4. **🎭 Consistent character maintenance** across extended multi-phase deliberations
-5. **🔧 Tick-based plugin composability** - Modular watcher system enables unlimited extensibility and custom intervention strategies
-6. **🧵 Relationship persistence** - Stickness system maintains private communication threads and relationship continuity across debate phases
+1. **📈 Emergent narrative generation** where authentic political dynamics arise from agent interactions
+2. **⚖️ Balanced participation** management preventing any single voice from dominating
+3. **🎭 Consistent character maintenance** across extended multi-phase deliberations
+4. **🔧 Tick-based plugin composability** - Modular watcher system enables unlimited extensibility and custom intervention strategies
+5. **🧵 Relationship persistence** - Stickness system maintains private communication threads and relationship continuity across debate phases
 
 ### Recursive Meta-Governance Architecture
 1. **🏛️ Democratic AI oversight** - AI systems democratically govern other AI systems through structured debate with majority voting requirements
 2. **🔄 Self-correcting intelligence** - Higher-level debates identify and correct biases or procedural errors in lower-level discussions through consensus-based interventions
 3. **⚖️ Configurable intervention depth** - From quick oversight (1-2 messages) to comprehensive analysis (10+ messages) with tunable urgency thresholds
-4. **🧠 Emergent quality assurance** - Meta-debates catch subtle issues that neither humans nor single AIs would detect through collaborative evaluation
-5. **∞ Infinite recursion capability** - Debates watching debates watching debates with no theoretical limit and fail-safe majority consensus requirements
-6. **⚖️ Majority consensus enforcement** - Interventions only occur when meta-debate participants reach democratic agreement, with automatic fallback to non-interference
-7. **⚡ Real-time self-governance** - System spawns scheduled meta-moderation debates, with democratic voting determining interventions without human oversight
+4. **∞ Infinite recursion capability** - Debates watching debates watching debates with no theoretical limit and fail-safe majority consensus requirements
+5. **⚖️ Majority consensus enforcement** - Interventions only occur when meta-debate participants reach democratic agreement, with automatic fallback to non-interference
+6. **⚡ Real-time self-governance** - System spawns scheduled meta-moderation debates, with democratic voting determining interventions without human oversight
 
 ## 🧠 Advanced Cognitive Features
 
