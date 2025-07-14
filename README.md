@@ -166,23 +166,6 @@ Every agent communication follows strict XML-like scaffolding:
 2. **Whisper Layer**: Private messages filtered by target recipient
 3. **Cognitive Layer**: Internal thoughts visible only to the generating agent
 
-**Message Filtering Pipeline:**
-```python
-def filter_messages_for_agent(self, messages: List[Message], target_agent: str) -> List[Message]:
-    filtered = []
-    for msg in messages:
-        # Include public messages
-        if not msg.is_whisper:
-            filtered.append(msg)
-        # Include whispers where agent is sender or target
-        elif msg.speaker == target_agent or msg.speaking_to == target_agent:
-            filtered.append(msg)
-        # Include own private thoughts only
-        elif self.contains_private_thoughts(msg) and msg.speaker == target_agent:
-            filtered.append(msg)
-    return filtered
-```
-
 ### Tick-Based Plugin System (Watchers)
 
 **Real-Time Monitoring & Intervention:**
@@ -207,22 +190,6 @@ orchestrator.watchers.append(reminder) # or pass it to the constructor
 
 ## 🎛️ Configuration & Customization
 
-### Built-in Verdict Types
-
-```python
-# Resume/Hiring Evaluation
-create_resume_verdict_config()
-# Options: EXCELLENT_FIT, GOOD_FIT, ADEQUATE, POOR_FIT, REJECT
-
-# Research Paper Review
-create_research_verdict_config() 
-# Options: BREAKTHROUGH, SIGNIFICANT, INCREMENTAL, INSUFFICIENT, FLAWED
-
-# Business Proposal Assessment
-create_proposal_verdict_config()
-# Options: APPROVE, APPROVE_WITH_CONDITIONS, REVISE_AND_RESUBMIT, DECLINE
-```
-
 ### Enhanced Persona Configuration
 
 ```python
@@ -233,17 +200,6 @@ Persona(
     personality="Secretive and paranoid, loves sharing rumors through whispers",
     speaking_style="Frequently whispers sensitive information, creates alliances through private communications"
 )
-```
-### Advanced Analytics
-
-**Whisper Pattern Analysis:**
-```python
-whisper_stats = {
-    'total_whispers': count,
-    'whisper_networks': agent_to_agent_mapping,
-    'alliance_formations': detected_coalition_building,
-    'information_cascades': private_info_flow_patterns
-}
 ```
 
 ## 🛠️ Development Status
@@ -298,7 +254,7 @@ whisper_stats = {
 - No coordination or discussion
 - Like surveying multiple doctors but they never talk to each other
 
-### 🔗 Chain of Debate Innovation
+### 🔗 Chain of Debate
 **Structured AI Panel Discussions:**
 - Multiple AI experts with different specialties debate together
 - They can whisper privately to form alliances and share sensitive information
@@ -306,7 +262,7 @@ whisper_stats = {
 - Built-in moderation to keep discussions on track
 - Like a real expert panel where specialists can consult privately while working toward a group decision
 
-## Key Innovations
+## Key Points
 
 ### 1. **Private Communications ("Whispers")**
 - AIs can send private messages to specific other AIs
