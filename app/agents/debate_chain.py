@@ -530,7 +530,7 @@ Remember: The TimeKeeper's/Coordinator's cannot speak and they are part of the s
         print(f"    {message.content}")
 
         if reasoning:
-            print(f"    💭 Reasoning: {reasoning}")
+            print(f"\n    💭 Reasoning: {reasoning}")
 
         print(f"    (timestamp: {message.timestamp})")
 
@@ -570,7 +570,7 @@ Remember: The TimeKeeper's/Coordinator's cannot speak and they are part of the s
         result += f"    {message.content}\n"
 
         if reasoning:
-            result += f"    💭 Reasoning: {reasoning}\n"
+            result += f"\n    💭 Reasoning: {reasoning}\n"
 
         result += f"    (timestamp: {message.timestamp})\n"
 
