@@ -524,9 +524,9 @@ Remember: The TimeKeeper's/Coordinator's cannot speak and they are part of the s
 
         print(f"\n[{self.message_count}] {persona.name.upper()} ({persona.title}){speaking_to_str}{status_str}:")
         print(f"(is_whisper={message.is_whisper})")
-        print(f"\n<PrivateThoughts speaker=\"{message.speaker}\">{message.thoughts}</PrivateThoughts>\n")
+        print(f"\n      💭 Thoughts: {message.thoughts}\n")
         if message.private_predictions:
-            print(f"\n<PrivatePredictions speaker=\"{message.speaker}\">{message.private_predictions}</PrivatePredictions>\n")
+            print(f"\n      💭 Strategy {message.private_predictions}\n")
         print(f"    {message.content}")
 
         if reasoning:
@@ -563,9 +563,9 @@ Remember: The TimeKeeper's/Coordinator's cannot speak and they are part of the s
 
         result = f"\n[{self.message_count}] {persona.name.upper()} ({persona.title}){speaking_to_str}{status_str}:\n"
         result += f"(is_whisper={message.is_whisper})\n"
-        result += f"\n<PrivateThoughts speaker=\"{message.speaker}\">{message.thoughts}</PrivateThoughts>\n\n"
+        result += f"\n      💭 Thoughts: {message.thoughts}\n"
         if message.private_predictions:
-            result += f"\n<PrivatePredictions speaker=\"{message.speaker}\">{message.thoughts}</PrivatePredictions>\n\n"
+            result += f"\n      💭 Strategy: {message.private_predictions}\n"
 
         result += f"    {message.content}\n"
 

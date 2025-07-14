@@ -471,6 +471,7 @@ Please ensure proper formatting in responses."""
                     response_msg = self.llm(
                         speaker=current_speaker,
                         messages=messages_with_system,
+                        stop_sequences=["</Message>"]
                     )
 
                 # Validate message for regular participants
