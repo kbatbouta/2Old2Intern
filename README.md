@@ -105,9 +105,6 @@ Agents maintain ongoing psychological assessments of other participants, continu
 **Evolving Social Awareness:**
 As debates progress, agents revise their opinions of colleagues based on performance - recognizing when someone exceeds expectations, identifying emerging coalition patterns, or detecting shifts in strategic positioning. This dynamic assessment mirrors how real experts adjust their perceptions during extended deliberations.
 
-**Strategic Anticipation:**
-The prediction system enables agents to forecast how participants might respond to pressure, what would make them change positions, and who they're most likely to align with. This forward-looking intelligence informs tactical decisions about when to build alliances, how to frame arguments, and whether to coordinate responses with potential allies.
-
 ### Enhanced Whisper Response System
 
 The framework includes mechanisms to **increase whisper engagement**:
@@ -313,16 +310,4 @@ Structured final recommendations
 **📊 Systematic Analysis:** Sequential goal processing ensures comprehensive evaluation
 **⚡ Scalable Expertise:** Can simulate expert panels for any topic without coordinating real humans
 **🔍 Transparent Process:** You can see not just the final decision, but how it was reached through the debate
-
-## What Makes It "New"
-
-This is the first system that successfully simulates **realistic group dynamics** between AI agents:
-- Private strategy discussions
-- Alliance formation
-- Information warfare
-- Compromise negotiation
-- Systematic problem-solving
-
-Previous AI systems were either single-agent or simple multi-agent. This creates **emergent group behavior** that closely mirrors how real expert committees actually work - complete with politics, coalitions, and strategic thinking.
-
 **Bottom Line:** Instead of asking one AI expert or getting separate opinions from multiple AIs, you get a realistic expert panel discussion where specialists can collaborate, compete, and coordinate just like humans do.
