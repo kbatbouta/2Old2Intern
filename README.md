@@ -98,7 +98,7 @@ coordinate with the security expert privately first to build a stronger case.
 - **Strategic Planning**: Agents use thoughts to plan their approach and assess situations
 - **Realistic Cognition**: Simulates the internal deliberation that precedes external communication
 - **Coalition Strategy**: Agents think through alliance-building and information sharing tactics
-- 
+ 
 ### Continuous Cognitive Intelligence
 
 **Behavioral Prediction Modeling:**
@@ -110,16 +110,11 @@ As debates progress, agents revise their opinions of colleagues based on perform
 **Strategic Anticipation:**
 The prediction system enables agents to forecast how participants might respond to pressure, what would make them change positions, and who they're most likely to align with. This forward-looking intelligence informs tactical decisions about when to build alliances, how to frame arguments, and whether to coordinate responses with potential allies.
 
-**Authentic Group Psychology:**
-Rather than static character interactions, agents demonstrate realistic psychological depth - showing surprise when colleagues defy expectations, adjusting strategies based on emerging dynamics, and maintaining private assessments that evolve throughout the deliberation process. This creates genuine group psychology where relationships and perceptions shift organically.
-
 ### Enhanced Whisper Response System
 
 The framework includes mechanisms to **increase whisper engagement**:
 
 **Whisper Targeting Intelligence:**
-- Agents analyze conversation context to identify strategic whisper opportunities
-- Higher probability of whisper responses when sensitive information is shared
 - Natural conversation threading where whispers often trigger follow-up whispers
 
 **Response Probability Enhancement:**
@@ -188,18 +183,6 @@ def filter_messages_for_agent(self, messages: List[Message], target_agent: str) 
     return filtered
 ```
 
-### Whisper Engagement Mechanics
-
-**Strategic Whisper Triggers:**
-- Agents identify opportunities for private consultation
-- Sensitive information naturally flows through whisper channels
-- Coalition-building conversations emerge organically
-
-**Response Amplification:**
-- Whispers containing strategic keywords have higher response probability
-- Private information sharing creates natural conversation threading
-- Agents remember whisper context across multiple exchanges
-
 ### Tick-Based Plugin System (Watchers)
 
 **Real-Time Monitoring & Intervention:**
@@ -251,14 +234,6 @@ Persona(
     speaking_style="Frequently whispers sensitive information, creates alliances through private communications"
 )
 ```
-
-**Whisper-Prone Personality Traits:**
-- Secretive information gatekeepers
-- Strategic alliance builders  
-- Paranoid security specialists
-- Diplomatic coordinators
-- Competitive analysts
-
 ### Advanced Analytics
 
 **Whisper Pattern Analysis:**
@@ -270,36 +245,6 @@ whisper_stats = {
     'information_cascades': private_info_flow_patterns
 }
 ```
-
-**Cognitive Process Tracking:**
-- Internal thought pattern analysis
-- Strategic planning identification
-- Decision-making process visibility
-- Coalition formation prediction
-
-## 🧪 Testing & Validation
-
-### Advanced Testing Scenarios
-
-```bash
-# Test three-tier communication system
-python tests/communication_layers_test.py
-
-# Test whisper engagement patterns
-python tests/whisper_engagement_test.py
-
-# Test private thoughts isolation
-python tests/cognitive_privacy_test.py
-
-# Test strategic alliance formation
-python tests/coalition_building_test.py
-```
-
-**Whisper Behavior Validation:**
-- Verify private thoughts remain isolated to generating agent
-- Confirm whisper visibility rules are enforced
-- Test whisper response amplification mechanisms
-- Validate coalition formation detection
 
 ## 🛠️ Development Status
 
