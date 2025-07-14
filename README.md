@@ -34,7 +34,6 @@ This isn't just another chatbot system - it's a composable **flexible debate eng
 3. **⚠️ Drift prevention** through constant orientation reminders and goal clarity
 4. **🔴 Escalating alerts** when discussions veer off-track or participants fail to engage with current objectives
 5. **📊 Real-time coordination** ensuring all voices are heard before phase transitions
-6. **🎯 Efficient decision forcing** - System achieved 5 comprehensive verdicts across 5 goals in just 100 messages with 6 agents, demonstrating remarkable deliberative efficiency
 
 ### System Intelligence Features
 1. **🤝 Coalition detection** that automatically identifies and tracks alliance formation
